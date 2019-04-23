@@ -19,4 +19,6 @@ else
   cd $docker_dir && docker-compose run $container_name yarn run build
 fi
 
+# distフォルダに出力されたビルド内容をquoridornの名前に変更してapp/publicの下に移動
 
+mv -T $parent_dir/dist/dist $parent_dir/app/public/quoridorn
