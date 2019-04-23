@@ -44,5 +44,3 @@ RUN yarn add --dev sass-loader
 RUN yarn add --dev vue-template-compiler
 # RUN yarn add --dev @typescript-eslint/parser
 RUN yarn add --dev typescript-eslint-parser
-RUN yarn add --dev postcss-loader
-RUN yarn add --dev autoprefixer

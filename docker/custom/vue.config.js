@@ -6,7 +6,6 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
 
 module.exports = {
   publicPath: process.env.VUE_APP_BASE_URL,
-  baseUrl: process.env.VUE_APP_BASE_URL,
   devServer: {
     // https://uyamazak.hatenablog.com/entry/2018/07/31/115457
     // sock.js用に仮想環境のIPとポートを指定
@@ -36,7 +35,8 @@ module.exports = {
         threshold: 1024,
         minRatio: 0.8
       }),
-      new BundleAnalyzerPlugin()
+      // buildの後にanalyzerが動いてctrl + Cで終わらなければならなくなるのでコメントアウト
+      // new BundleAnalyzerPlugin()
     ]
   },
   // yamlローダーの追加
@@ -51,17 +51,4 @@ module.exports = {
       .loader("yaml-loader")
       .end();
   }
-  // start value has mixed support, consider using flex-start insteadのエラーがでた
-  // , css: {
-  //   loaderOptions: {
-  //     css: {
-  //       // options here will be passed to css-loader
-  //     },
-  //     postcss: {
-  //       //options: { plugins: 'postcss-css-variables': {}}
-  //       options: { plugins: [require('autoprefixer')()] }
-  //       // options here will be passed to postcss-loader
-  //     }
-  //   }
-  // }
 };
