@@ -43,23 +43,28 @@
 
         <!-- 発言者選択 -->
         <span class="label">名前(！)</span>
-        <select
+        <ctrl-select
           :tabindex="chatTabs.length + 2"
           :value="chatActorKey"
-          @change="event => updateActorKey(event.target.value)" title=""
-        >
-          <option
-            v-for="actor in getSelfActors"
-            :key="actor.key"
-            :value="actor.key"
-          >{{getViewName(actor.key)}}</option>
-        </select>
+          @input="updateActorKey"
+          title=""
+          :optionInfoList="getSelfActors.map(actor => ({ key: actor.key, value: actor.key, text: getViewName(actor.key) }))"
+        />
 
         <!-- ステータス選択 -->
-        <actor-status-select :actorKey="chatActorKey" v-model="statusName" :tabindex="chatTabs.length + 3"/>
+        <actor-status-select
+          :actorKey="chatActorKey"
+          v-model="statusName"
+          :tabindex="chatTabs.length + 3"
+        />
 
         <!-- ダイスボット選択 -->
-        <dice-bot-select ref="diceBot" v-model="currentDiceBotSystem" :tabindex="chatTabs.length + 4" class="diceBotSystem"/>
+        <dice-bot-select
+          ref="diceBot"
+          v-model="currentDiceBotSystem"
+          :tabindex="chatTabs.length + 4"
+          class="diceBotSystem"
+        />
 
         <!-- ここから各種機能呼び出しボタン -->
         <span class="icon">
@@ -252,7 +257,7 @@
             ></textarea>
           </label>
         </div>
-        <button :tabindex="chatTabs.length + chatTabs.length + 17" @contextmenu.prevent>送信</button>
+        <ctrl-button :tabindex="chatTabs.length + chatTabs.length + 17" @contextmenu.prevent>送信</ctrl-button>
       </div>
       <!----------------
        ! 入力者表示
@@ -275,11 +280,13 @@
 </template>
 
 <script lang="ts">
-import DiceBotSelect from "../parts/select/DiceBotSelect.vue";
-import ActorStatusSelect from "@/components/parts/select/ActorStatusSelect.vue";
-
 import WindowMixin from "../WindowMixin.vue";
 import WindowFrame from "../WindowFrame.vue";
+
+import DiceBotSelect from "../parts/select/DiceBotSelect.vue";
+import ActorStatusSelect from "@/components/parts/select/ActorStatusSelect.vue";
+import CtrlSelect from "@/components/parts/CtrlSelect.vue";
+import CtrlButton from "@/components/parts/CtrlButton.vue";
 
 import { Vue, Watch } from "vue-property-decorator";
 import { Action, Getter, Mutation } from "vuex-class";
@@ -287,6 +294,8 @@ import { Component, Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: {
+    CtrlButton,
+    CtrlSelect,
     ActorStatusSelect,
     WindowFrame,
     DiceBotSelect
@@ -348,6 +357,11 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
   private volatileActiveTab: string = "";
   private volatileTargetTab: string | null = "";
   private statusName: string = "◆";
+
+  @Watch("chatActorKey", { deep: true, immediate: true })
+  private onChangeChatActorKey(chatActorKey: any) {
+    this.statusName = "◆";
+  }
 
   /**
    * チャット入力欄の入力イベントハンドラ
@@ -456,6 +470,8 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
       const newValue = arrangeIndex(this.useCommandActorList, index);
 
       this.updateActorKey(newValue.key);
+
+      // window.console.log(this.statusName, "->", newValue.statusName);
       this.statusName = newValue.statusName;
     }
 
@@ -511,7 +527,10 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
       if (this.volatileFrom) {
         this.updateActorKey(this.volatileFrom);
       }
-      if (this.volatileStatusName) this.statusName = this.volatileStatusName;
+      if (this.volatileStatusName) {
+        // window.console.log(this.statusName, "->", this.volatileStatusName);
+        this.statusName = this.volatileStatusName;
+      }
       if (this.volatileTarget) this.chatTarget = this.volatileTarget;
       if (this.volatileActiveTab) this.chatTabOnSelect(this.volatileActiveTab);
       if (this.volatileTargetTab) this.outputTab = this.volatileTargetTab;
@@ -854,13 +873,8 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
   @Watch("secretTarget")
   private onChangeSecretTarget(this: any, secretTarget: any) {
     if (!secretTarget) return;
-    window.console.log("selectSecretTalk", secretTarget);
+    // window.console.log("selectSecretTalk", secretTarget);
     this.secretTarget = "";
-  }
-
-  @Watch("statusName")
-  private onChangeStatusName(statusName: string) {
-    if (!statusName) this.statusName = "◆";
   }
 
   private get useCommandActorList(): any[] {

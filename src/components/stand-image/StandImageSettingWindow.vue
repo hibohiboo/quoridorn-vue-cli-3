@@ -1,5 +1,10 @@
 <template>
-  <window-frame titleText="立ち絵設定" display-property="private.display.standImageSettingWindow" align="center" fixSize="660, 540">
+  <window-frame
+    titleText="立ち絵設定"
+    display-property="private.display.standImageSettingWindow"
+    align="center"
+    fixSize="676, 540"
+  >
     <div class="contents">
       <actor-tab-component @change="changeActor">
         <actor-status-tab-component slot-scope="{ actor }" v-if="actor" :actor="actor" @change="changeStatus" ref="actorStatusTabComponent">
@@ -12,7 +17,8 @@
                   :statusName="status.name"
                   :value="status.standImage.ref"
                   :disabled="status.standImage.isSystemLock"
-                  @input="changeRef"/>
+                  @input="changeRef"
+                />
               </label>
 
               <span
@@ -45,10 +51,10 @@
                       :disabled="status.standImage.isSystemLock"
                     >
                   </label>
-                  <button
+                  <ctrl-button
                     @click="addDiff()"
                     :disabled="status.standImage.isSystemLock"
-                  >差分追加</button>
+                  >差分追加</ctrl-button>
                 </div>
                 <label>サイズの自動調整
                   <input
@@ -113,13 +119,15 @@ import ActorStatusTabComponent from "@/components/parts/ActorStatusTabComponent.
 import DiffComponent from "@/components/stand-image/DiffComponent.vue";
 import ActorOtherStatusSelect from "@/components/parts/select/ActorOtherStatusSelect.vue";
 import StandImageComponent from "@/components/parts/StandImageComponent.vue";
-import { removeExt } from "@/components/common/Utility";
+import CtrlButton from "@/components/parts/CtrlButton.vue";
 
+import { removeExt } from "@/components/common/Utility";
 import { Action, Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: {
+    CtrlButton,
     ActorOtherStatusSelect,
     WindowFrame,
     ActorTabComponent,
@@ -163,8 +171,8 @@ export default class StandImageSettingWindow extends Mixins<WindowMixin>(
   }
 
   private updateStatus(standImage: any) {
-    const actor = this.getObj(this.actorKey);
-    const statusIndex = actor.statusList.findIndex(
+    const actor: any = this.getObj(this.actorKey);
+    const statusIndex: number = actor.statusList.findIndex(
       (status: any) => status.name === this.statusName
     );
     const updateStatusList: any = {};
@@ -181,9 +189,7 @@ export default class StandImageSettingWindow extends Mixins<WindowMixin>(
   }
 
   changeRef(ref: string): void {
-    this.updateStatus({
-      ref: ref
-    });
+    this.updateStatus({ ref });
   }
 
   changeStatus(statusName: string): void {
@@ -272,6 +278,8 @@ export default class StandImageSettingWindow extends Mixins<WindowMixin>(
 
               this.updateStatus(arg);
 
+              const isReverse: boolean = /:R/.test(imageKey);
+
               // 画像のファイル名の情報を利用
               const baseImage: any = this.imageList.filter(
                 (image: any) => image.key === imageKey.replace(":R", "")
@@ -290,7 +298,12 @@ export default class StandImageSettingWindow extends Mixins<WindowMixin>(
                   let isFind = false;
                   if (diffList) {
                     for (const diff of diffList) {
-                      if (diff.imageKey === diffImage.key) {
+                      if (
+                        diff &&
+                        diff.imageKey &&
+                        diff.imageKey.replace(":R", "") ===
+                          diffImage.key.replace(":R", "")
+                      ) {
                         isFind = true;
                         break;
                       }
@@ -300,9 +313,12 @@ export default class StandImageSettingWindow extends Mixins<WindowMixin>(
                     const argObj = DiffComponent.getArg(diffImage);
                     this.addDiff(
                       diffImage.key,
-                      diffImage.tag,
-                      argObj.x,
-                      argObj.y
+                      imageTag,
+                      argObj.type,
+                      isReverse ? argObj.reverseX : argObj.x,
+                      isReverse ? argObj.reverseY : argObj.y,
+                      argObj.from,
+                      argObj.to
                     );
                   }
                 });
@@ -348,9 +364,12 @@ export default class StandImageSettingWindow extends Mixins<WindowMixin>(
 
   private addDiff(
     image: string = "",
-    tag: string = "立ち絵",
+    tag: string = "imgTag-4",
+    type: number = 0,
     x: number = 0,
-    y: number = 0
+    y: number = 0,
+    from: number = 30,
+    to: number = 70
   ): void {
     this.addStandImageDiff({
       key: this.actorKey,
@@ -359,7 +378,8 @@ export default class StandImageSettingWindow extends Mixins<WindowMixin>(
       tag,
       x,
       y,
-      time: [30, 70]
+      type: type,
+      time: [from, to]
     });
   }
 }

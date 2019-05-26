@@ -31,7 +31,7 @@ module.exports = {
         test: new RegExp("\\.(" + productionGzipExtensions.join("|") + ")$"),
         threshold: 1024,
         minRatio: 0.8
-      }),
+      })
       // buildの後にanalyzerが動いてctrl + Cで終わらなければならなくなるのでコメントアウト
       // new BundleAnalyzerPlugin()
     ]

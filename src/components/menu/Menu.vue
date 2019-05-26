@@ -96,14 +96,14 @@
      ! ウィンドウ
      !-------------------------------------------------->
     <div class="hoverMenu hoverMenu8" v-show="isShow('ウィンドウ')">
-      <menu-boolean-item property="private.display.chatWindow">チャット表示</menu-boolean-item>
-      <menu-boolean-item property="private.setting.dice">ダイス表示</menu-boolean-item>
-      <menu-boolean-item property="private.display.playerBoxWindow">プレイヤーボックス表示</menu-boolean-item>
-      <menu-boolean-item property="private.display.initiativeWindow">イニシアティブ表示</menu-boolean-item>
-      <menu-boolean-item property="private.display.resourceWindow">リソース表示</menu-boolean-item>
+      <menu-boolean-item @click="menuClick" property="private.display.chatWindow">チャット表示</menu-boolean-item>
+      <menu-boolean-item @click="menuClick" property="private.setting.dice">ダイス表示</menu-boolean-item>
+      <menu-boolean-item @click="menuClick" property="private.display.playerBoxWindow">プレイヤーボックス表示</menu-boolean-item>
+      <menu-boolean-item @click="menuClick" property="private.display.initiativeWindow">イニシアティブ表示</menu-boolean-item>
+      <menu-boolean-item @click="menuClick" property="private.display.resourceWindow">リソース表示</menu-boolean-item>
       <hr>
-      <menu-boolean-item property="private.display.chatPaletteWindow">チャットパレット表示</menu-boolean-item>
-      <menu-boolean-item property="private.display.counterRemoconWindow">カウンターリモコン表示</menu-boolean-item>
+      <menu-boolean-item @click="menuClick" property="private.display.chatPaletteWindow">チャットパレット表示</menu-boolean-item>
+      <menu-boolean-item @click="menuClick" property="private.display.counterRemoconWindow">カウンターリモコン表示</menu-boolean-item>
     </div>
     <!--------------------------------------------------
      ! デモ
@@ -119,6 +119,7 @@
 
 <script lang="ts">
 import MenuBooleanItem from "./MenuBooleanItem.vue";
+
 import { Action, Getter } from "vuex-class";
 import { Component, Vue, Watch } from "vue-property-decorator";
 
@@ -334,12 +335,7 @@ export default class Menu extends Vue {
      * ----------------- */
   /** ファイルアップローダー */
   clickFileUploader(): void {
-    this.setProperty({
-      property: "private.display.unSupportWindow.title",
-      value: "ファイルアップローダー",
-      logOff: true
-    });
-    this.windowOpen("private.display.unSupportWindow");
+    this.windowOpen("private.display.fileUploaderWindow");
     this.menuClick();
   }
 
@@ -535,7 +531,11 @@ span.isDisconnect {
   z-index: 200;
 
   > * {
-    padding: 0 10px;
+    padding: 2px 10px;
+  }
+
+  > hr {
+    padding: 0;
   }
 
   > .item:hover {
@@ -588,7 +588,7 @@ span.isDisconnect {
 }
 .triangle {
   position: absolute;
-  right: 10px;
+  right: 7px;
   top: 0;
   bottom: 0;
   margin: auto;
@@ -596,8 +596,8 @@ span.isDisconnect {
   vertical-align: middle;
   width: 0;
   height: 0;
-  border-left: 6px solid black;
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent;
+  border-left: 5px solid black;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
 }
 </style>

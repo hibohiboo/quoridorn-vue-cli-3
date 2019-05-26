@@ -22,18 +22,16 @@
             <fieldset class="fontColorArea">
               <legend>チャット文字色</legend>
               <label>
-                <select
+                <ctrl-select
                   :value="character.fontColorType"
-                  @change="(event) => changeFontColorType(character.key, event.target.value)"
-                >
-                  <option value="0">主と同じ</option>
-                  <option value="1">個別</option>
-                </select>
+                  @input="value => changeFontColorType(character.key, value)"
+                  :optionInfoList="fontColorTypeOptionInfoList"
+                />
                 <input
                   type="color"
-                  :value="character.fontColorType === 0 ? getPlayer ? getPlayer.fontColor : '' : character.fontColor"
+                  :value="character.fontColorType === '0' ? getPlayer ? getPlayer.fontColor : '' : character.fontColor"
                   @change="event => changeCharacterFontColor(character.key, event.target.value, event.target.parentNode.nextElementSibling.firstElementChild.checked)"
-                  :disabled="character.fontColorType === 0"/>
+                  :disabled="character.fontColorType === '0'"/>
               </label>
               <label>過去ログ反映<input type="checkbox" checked /></label>
             </fieldset>
@@ -91,6 +89,7 @@ import WindowFrame from "../WindowFrame.vue";
 import WindowMixin from "../WindowMixin.vue";
 import CharacterChip from "../map/character/CharacterChip.vue";
 import PlayerSelect from "@/components/parts/select/PlayerSelect.vue";
+import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 
 import { Action, Getter } from "vuex-class";
 import { Watch } from "vue-property-decorator";
@@ -98,6 +97,7 @@ import { Component, Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: {
+    CtrlSelect,
     PlayerSelect,
     WindowFrame,
     CharacterChip
@@ -111,7 +111,7 @@ export default class PlayerBoxWindow extends Mixins<WindowMixin>(WindowMixin) {
   @Getter("playerKey") private playerKey: any;
   @Getter("getMapObjectList") private getMapObjectList: any;
 
-  private currentPlayerKey: string = "";
+  private currentPlayerKey: string = "aaa";
 
   changeFontColorType(this: any, key: string, value: string): void {
     const characterList = this.getMapObjectList({ kind: "character" });
@@ -170,6 +170,23 @@ export default class PlayerBoxWindow extends Mixins<WindowMixin>(WindowMixin) {
 
   get getPlayer(): any {
     return this.getObj(this.currentPlayerKey);
+  }
+
+  private get fontColorTypeOptionInfoList(): any[] {
+    const resultList: any[] = [];
+    resultList.push({
+      key: 0,
+      value: "0",
+      text: "主と同じ",
+      disabled: false
+    });
+    resultList.push({
+      key: 1,
+      value: "1",
+      text: "個別",
+      disabled: false
+    });
+    return resultList;
   }
 }
 </script>

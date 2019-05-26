@@ -23,12 +23,7 @@
       </label>
       <label>
         <span class="label">修正値{2}:</span>
-        <select v-model="modifyType">
-          <option :value="COUNTER_REMOCON_TYPE.PLUS">＋</option>
-          <option :value="COUNTER_REMOCON_TYPE.MINUS">ー</option>
-          <option :value="COUNTER_REMOCON_TYPE.EQUALS">＝</option>
-          <option :value="COUNTER_REMOCON_TYPE.PLUS_MINUS">±</option>
-        </select>
+        <ctrl-select v-model="modifyType" :optionInfoList="modifyTypeOptionInfoList"/>
         <input type="text" v-model="modifyValue">
       </label>
       <label>
@@ -40,18 +35,20 @@
         <span class="full example">{{exampleText}}</span>
       </label>
       <div class="operationArea">
-        <button @click="commitButtonOnClick">設定</button>
-        <button @click="cancelButtonOnClick">キャンセル</button>
+        <ctrl-button @click="commitButtonOnClick">設定</ctrl-button>
+        <ctrl-button @click="cancelButtonOnClick">キャンセル</ctrl-button>
       </div>
     </div>
   </window-frame>
 </template>
 
 <script lang="ts">
-import CounterSelect from "@/components/parts/select/CounterSelect.vue";
-import CharacterSelect from "@/components/parts/select/CharacterSelect.vue";
 import WindowMixin from "../WindowMixin.vue";
 import WindowFrame from "../WindowFrame.vue";
+import CounterSelect from "@/components/parts/select/CounterSelect.vue";
+import CharacterSelect from "@/components/parts/select/CharacterSelect.vue";
+import CtrlButton from "@/components/parts/CtrlButton.vue";
+import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 
 import { Action, Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
@@ -59,6 +56,8 @@ import { Watch } from "vue-property-decorator";
 
 @Component({
   components: {
+    CtrlSelect,
+    CtrlButton,
     WindowFrame,
     CounterSelect,
     CharacterSelect
@@ -78,7 +77,7 @@ export default class CounterRemoconEditorWindow extends Mixins<WindowMixin>(
   private buttonName: string = "";
   private target: string = "";
   private counterName: string = "";
-  private modifyType: number = 0;
+  private modifyType: string = "0";
   private modifyValue: string = "";
   private sampleValue: number = 0;
   private sampleDiceValue: string = "";
@@ -232,6 +231,35 @@ export default class CounterRemoconEditorWindow extends Mixins<WindowMixin>(
         this.sampleDiceValue = "";
       });
     }
+  }
+
+  private get modifyTypeOptionInfoList(): any[] {
+    const resultList: any[] = [];
+    resultList.push({
+      key: 0,
+      value: this.COUNTER_REMOCON_TYPE.PLUS,
+      text: "＋",
+      disabled: false
+    });
+    resultList.push({
+      key: 1,
+      value: this.COUNTER_REMOCON_TYPE.MINUS,
+      text: "ー",
+      disabled: false
+    });
+    resultList.push({
+      key: 2,
+      value: this.COUNTER_REMOCON_TYPE.EQUALS,
+      text: "＝",
+      disabled: false
+    });
+    resultList.push({
+      key: 3,
+      value: this.COUNTER_REMOCON_TYPE.PLUS_MINUS,
+      text: "±",
+      disabled: false
+    });
+    return resultList;
   }
 }
 </script>

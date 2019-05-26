@@ -71,7 +71,7 @@ export default {
 
     /** マップ */
     map: {
-      imageTag: "マップ",
+      imageTag: "imgTag-1",
       imageKey: "image-0",
       isReverse: false,
       margin: {
@@ -122,7 +122,7 @@ export default {
           buttonName: "万能",
           target: "",
           counterName: "",
-          modifyType: 2,
+          modifyType: "2",
           modifyValue: "",
           message: "{0}の{1}を{2}した{4}",
           exampleText: "[選択キャラ]の[選択項目]を0した（[選択項目]：3->3）"
@@ -484,9 +484,12 @@ export default {
       if (kind === "groupTargetTab") {
         // グループチャットタブ
         return state.chat.groupTargetTab.list.filter(filterFunc)[0];
+      } else if (kind === "imgTag") {
+        // イメージタグ
+        return state.image.tags.list.filter(filterFunc)[0];
       } else {
         // その他
-        return state[kind].list.filter(filterFunc)[0];
+        return state[kind] ? state[kind].list.filter(filterFunc)[0] : undefined;
       }
     },
 
@@ -599,7 +602,7 @@ export default {
       let color = "black";
       if (actor) {
         if (actor.key.split("-")[0] === "character") {
-          if (actor.fontColorType === 0) {
+          if (actor.fontColorType === "0") {
             // プレイヤーと同じ色を使う
             color = getter.getSelfActors[0].color;
           } else {
@@ -637,6 +640,37 @@ export default {
     publicCounterRemoconList: (state: any) => state.counterRemocon.list,
     roomSystem: (state: any) => state.room.system,
     publicMemo: (state: any) => state.publicMemo,
-    historyList: (state: any) => state.historyList
+    historyList: (state: any) => state.historyList,
+    imageListTagStringList: (state: any, getter: any): string[] => {
+      const resultList: string[] = [];
+      const regExp = new RegExp("[ 　]+", "g");
+      getter.imageList.forEach((imageObj: any) => {
+        const tagList: string[] = imageObj.tag.split(regExp);
+        tagList.forEach(imageTagStr => {
+          const index = resultList.findIndex(result => result === imageTagStr);
+          if (index < 0) resultList.push(imageTagStr);
+        });
+      });
+      return resultList;
+    },
+    imageListFromTagKey: (state: any, getter: any): Function => (
+      tagKey: string
+    ): any[] => {
+      // (全て)なら全部
+      if (tagKey === "imgTag-0") return getter.imageList;
+
+      return getter.imageList.filter(
+        (obj: any) =>
+          obj.tag
+            .split(" ")
+            .map(
+              (tagName: string) =>
+                getter.imageTagList.filter(
+                  (imageTag: any) => imageTag.name === tagName
+                )[0]
+            )
+            .filter((imageObj: any) => imageObj.key === tagKey)[0]
+      );
+    }
   } /* end of getters */
 };

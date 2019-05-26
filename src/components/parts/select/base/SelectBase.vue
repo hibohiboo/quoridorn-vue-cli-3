@@ -1,24 +1,29 @@
 <template>
-  <select
+  <ctrl-select
     v-model="localValue"
-    :style="{ webkitTextFillColor: fontColor, mozTextFillColor: fontColor }"
     ref="select"
-    @contextmenu.prevent
+    :test="test"
+    :disabled="disabled"
+    :optionInfoList="optionInfoList"
   >
     <option :disabled="!defaultSelectable" value="" v-if="defaultLabel !== undefined">{{defaultLabel}}</option>
     <slot/>
-  </select>
+  </ctrl-select>
 </template>
 
 <script lang="ts">
-import SelectMixin from "./SelectMixin.vue";
+import SelectMixin from "./SelectMixin";
+import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 
-import { Prop } from "vue-property-decorator";
+import { Prop, Watch } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 
-@Component
+@Component({ components: { CtrlSelect } })
 export default class SelectBase extends Mixins<SelectMixin>(SelectMixin) {
   @Prop({ type: Boolean, default: false })
-  private defaultSelectable!: boolean;
+  private disabled!: boolean;
+
+  @Prop({ type: Array, required: true })
+  private optionInfoList!: any[];
 }
 </script>

@@ -1,32 +1,67 @@
 <template>
-  <window-frame titleText="キャラクター追加" display-property="private.display.addCharacterSettingWindow" align="center" fixSize="653, 377" @open="open"><!--  baseSize="601, 377" -->
-    <div class="container" @contextmenu.prevent>
-      <div class="viewImage"><img v-img="currentImage" draggable="false" :class="{isReverse : isReverse}"/></div>
-      <image-selector
-        v-model="selectImage"
-        :imageTag.sync="currentImageTag"
-        class="imageSelector"
-      />
-      <div class="switchImageArea">
-        <button v-show="!isOpenSwitch" @click="isOpenSwitch = true" class="switchButton">画像切替設定</button>
-        <span v-show="isOpenSwitch" class="switchImage"><img v-for="switchObj in switchImageList" :class="{active : switchObj.key === switchCurrentKey, isReverse : switchObj.isReverse}" :key="switchObj.key" v-img="getImage(switchObj.imgKey)" @click="selectSwitchImage(switchObj.key)" tabindex="0" draggable="false"/></span>
-        <button v-show="isOpenSwitch" @click.prevent="addSwitch">追加</button>
-        <button v-show="isOpenSwitch" @click.prevent="deleteSwitch" :disabled="!isCanSwitchDelete">削除</button>
+  <window-frame
+    titleText="キャラクター追加"
+    display-property="private.display.addCharacterSettingWindow"
+    align="center"
+    fixSize="653, 377"
+    @open="open"
+    @reset="open"
+  >
+    <div class="container v-box" @contextmenu.prevent>
+      <div class="h-box flex-max">
+        <div class="viewImage"><img v-img="currentImage" draggable="false" :class="{isReverse : isReverse}"/></div>
+
+        <div class="v-box flex-max">
+          <image-selector
+            v-model="selectImage"
+            :imageTag.sync="currentImageTag"
+            class="imageSelector flex-max"
+          />
+
+          <div class="switchImageArea">
+            <ctrl-button v-show="!isOpenSwitch" @click="isOpenSwitch = true" class="switchButton">画像切替設定</ctrl-button>
+            <span v-show="isOpenSwitch" class="switchImage">
+            <img
+              v-for="switchObj in switchImageList"
+              :class="{active : switchObj.key === switchCurrentKey, isReverse : switchObj.isReverse}"
+              :key="switchObj.key"
+              v-img="getImage(switchObj.imgKey)"
+              @click="selectSwitchImage(switchObj.key)"
+              tabindex="0"
+              draggable="false"
+            />
+          </span>
+            <ctrl-button v-show="isOpenSwitch" @click.prevent="addSwitch">追加</ctrl-button>
+            <ctrl-button v-show="isOpenSwitch" @click.prevent="deleteSwitch" :disabled="!isCanSwitchDelete">削除</ctrl-button>
+          </div>
+        </div>
       </div>
+
       <div class="initiativeTable">
       </div>
-      <div class="nameArea"><label>名前：</label><input type="text" class="name" placeholder="必ず入力してください" v-model="name"/></div>
-      <div class="pieceOptions">
-        <label>サイズ：</label><input type="number" class="size" min="1" v-model="size"/>
-        <label><input type="checkbox" class="hide" v-model="isHide"/><span>マップマスクの下に隠す<br>(イニシアティブ表で非表示)</span></label>
+
+      <div class="h-box">
+        <!--
+        -->
+        <div class="v-box">
+          <div class="nameArea"><label>名前：</label><input type="text" class="name" placeholder="必ず入力してください" v-model="name"/></div>
+          <div class="pieceOptions">
+            <label>サイズ：</label><input type="number" class="size" min="1" v-model="size"/>
+            <label><input type="checkbox" class="hide" v-model="isHide"/><span>マップマスクの下に隠す<br>(イニシアティブ表で非表示)</span></label>
+          </div>
+          <div class="urlArea"><label>参照URL：</label><input type="text" v-model="url" placeholder="キャラクターシートのURL"/></div>
+        </div>
+
+        <label class="v-box flex-max">
+          その他
+          <textarea class="otherText flex-max" v-model="text"></textarea>
+        </label>
       </div>
-      <div class="urlArea"><label>参照URL：</label><input type="text" v-model="url" placeholder="キャラクターシートのURL"/></div>
-      <div class="otherTextLabel"><span>その他</span></div>
-      <textarea class="otherText" v-model="text"></textarea>
+
       <div class="buttonArea">
         <div>
-          <button @click="commit">追加</button>
-          <button @click="cancel">キャンセル</button>
+          <ctrl-button @click="commit">追加</ctrl-button>
+          <ctrl-button @click="cancel">キャンセル</ctrl-button>
         </div>
       </div>
     </div>
@@ -34,9 +69,10 @@
 </template>
 
 <script lang="ts">
-import ImageSelector from "@/components/parts/ImageSelector.vue";
 import WindowFrame from "../../WindowFrame.vue";
 import WindowMixin from "../../WindowMixin.vue";
+import CtrlButton from "@/components/parts/CtrlButton.vue";
+import ImageSelector from "@/components/parts/ImageSelector.vue";
 
 import { Watch } from "vue-property-decorator";
 import { Action, Getter } from "vuex-class";
@@ -44,6 +80,7 @@ import { Component, Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: {
+    CtrlButton,
     WindowFrame,
     ImageSelector
   }
@@ -76,7 +113,7 @@ export default class AddCharacterSettingWindow extends Mixins<WindowMixin>(
   }
 
   private isOpenSwitch: boolean = false;
-  private currentImageTag: string = "キャラクター";
+  private currentImageTag: string = "imgTag-2";
   private switchImageList: any[] = [
     { key: 0, imgKey: "image-1", isReverse: false }
   ];
@@ -87,7 +124,7 @@ export default class AddCharacterSettingWindow extends Mixins<WindowMixin>(
   private url: string = "";
   private text: string = "";
 
-  addSwitch() {
+  private addSwitch() {
     const nextKey: number =
       Math.max.apply(null, this.switchImageList.map(image => image.key)) + 1;
 
@@ -98,7 +135,8 @@ export default class AddCharacterSettingWindow extends Mixins<WindowMixin>(
     });
     this.switchCurrentKey = nextKey;
   }
-  doReverse() {
+
+  private doReverse() {
     const index = this.switchImageList.findIndex(
       image => image.key === this.switchCurrentKey
     );
@@ -106,19 +144,23 @@ export default class AddCharacterSettingWindow extends Mixins<WindowMixin>(
     switchImageObj.isReverse = !switchImageObj.isReverse;
     this.switchImageList.splice(index, 1, switchImageObj);
   }
-  getImage(key: number) {
+
+  private getImage(key: number) {
     const imageObj = this.imageList.filter(
       (image: any) => image.key === key
     )[0];
     return imageObj ? imageObj.data : null;
   }
-  getKeyObj(list: any[], key: number) {
+
+  private getKeyObj(list: any[], key: number) {
     return list.filter(obj => obj.key === key)[0];
   }
-  selectSwitchImage(key: number) {
+
+  private selectSwitchImage(key: number) {
     this.switchCurrentKey = key;
   }
-  selectTagImage(key: number) {
+
+  private selectTagImage(key: number) {
     const index = this.switchImageList.findIndex(
       image => image.key === this.switchCurrentKey
     );
@@ -127,7 +169,8 @@ export default class AddCharacterSettingWindow extends Mixins<WindowMixin>(
     switchImageObj.isReverse = false;
     this.switchImageList.splice(index, 1, switchImageObj);
   }
-  deleteSwitch() {
+
+  private deleteSwitch() {
     const index = this.switchImageList.findIndex(
       image => image.key === this.switchCurrentKey
     );
@@ -140,7 +183,8 @@ export default class AddCharacterSettingWindow extends Mixins<WindowMixin>(
         : this.switchImageList.length - 1
     ].key;
   }
-  commit() {
+
+  private commit() {
     if (this.name === "") {
       alert(`名前を入力してください。`);
       return;
@@ -162,16 +206,19 @@ export default class AddCharacterSettingWindow extends Mixins<WindowMixin>(
     };
     this.setProperty({
       property: `private.display.addCharacterWindow`,
-      value: obj
+      value: obj,
+      logOff: true
     });
     this.windowOpen("private.display.addCharacterWindow");
   }
-  cancel() {
+
+  private cancel() {
     this.windowClose("private.display.addCharacterSettingWindow");
   }
-  open() {
+
+  private open() {
     this.isOpenSwitch = false;
-    this.currentImageTag = "キャラクター";
+    this.currentImageTag = "imgTag-2";
     this.switchImageList.splice(0, this.switchImageList.length);
     this.switchImageList.push({
       key: 0,
@@ -187,17 +234,20 @@ export default class AddCharacterSettingWindow extends Mixins<WindowMixin>(
     this.windowClose("private.display.addCharacterWindow");
   }
 
-  get isReverse() {
+  private get isReverse() {
     return this.getKeyObj(this.switchImageList, this.switchCurrentKey)
       .isReverse;
   }
-  get isCanSwitchDelete() {
+
+  private get isCanSwitchDelete() {
     return this.switchImageList.length > 1;
   }
-  get currentImage() {
+
+  private get currentImage() {
     return this.getImage(this.currentImageKey);
   }
-  get currentImageKey() {
+
+  private get currentImageKey() {
     return this.getKeyObj(this.switchImageList, this.switchCurrentKey).imgKey;
   }
 }
@@ -205,32 +255,22 @@ export default class AddCharacterSettingWindow extends Mixins<WindowMixin>(
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+@import "../../common.scss";
+
 .container {
-  display: grid;
   width: 100%;
+  height: 100%;
   font-size: 12px;
-  position: absolute;
-  grid-template-columns: 200px auto 1fr;
-  grid-template-rows: 150px 1fr auto auto auto auto auto;
-  grid-template-areas:
-    "viewImage       imageSelector   imageSelector"
-    "viewImage       switchImageArea switchImageArea"
-    "initiativeTable initiativeTable initiativeTable"
-    "nameArea        nameArea        otherTextLabel"
-    "pieceOptions    pieceOptions    otherText"
-    "urlArea         urlArea         otherText"
-    "buttonArea      buttonArea      buttonArea";
 
   > * {
     padding: 1px 0;
   }
 }
+
 .isReverse {
   transform: scale(-1, 1);
 }
 .viewImage {
-  grid-area: viewImage;
-
   img {
     display: inline-block;
     width: 200px;
@@ -238,10 +278,8 @@ export default class AddCharacterSettingWindow extends Mixins<WindowMixin>(
   }
 }
 .imageSelector {
-  grid-area: imageSelector;
 }
 .switchImageArea {
-  grid-area: switchImageArea;
   display: flex;
 
   .switchImage {
@@ -273,28 +311,12 @@ export default class AddCharacterSettingWindow extends Mixins<WindowMixin>(
   }
 }
 .initiativeTable {
-  grid-area: initiativeTable;
 }
 .nameArea {
-  grid-area: nameArea;
 }
 .viewImage {
-  grid-area: viewImage;
-}
-.otherTextLabel {
-  display: flex;
-  grid-area: otherTextLabel;
-  vertical-align: bottom;
-
-  span {
-    display: inline;
-    vertical-align: bottom;
-    flex: 1;
-  }
 }
 .pieceOptions {
-  grid-area: pieceOptions;
-
   input[type="number"] {
     width: 35px;
   }
@@ -305,14 +327,10 @@ export default class AddCharacterSettingWindow extends Mixins<WindowMixin>(
   margin-right: 10px;
 }
 .otherText {
-  grid-area: otherText;
   resize: none;
-  width: 100%;
-  height: 100%;
   box-sizing: border-box;
 }
 .urlArea {
-  grid-area: urlArea;
   display: flex;
   vertical-align: middle;
 
@@ -324,16 +342,18 @@ export default class AddCharacterSettingWindow extends Mixins<WindowMixin>(
 }
 .urlArea input {
   flex: 1;
-  margin-right: 7px;
 }
 .buttonArea {
-  grid-area: buttonArea;
   text-align: center;
-  padding-top: 15px;
-  padding-bottom: 10px;
+  padding-top: 0.5em;
+  /*padding-bottom: 10px;*/
 
   > div {
     display: inline-block;
+
+    > * {
+      margin: 0 0.5em;
+    }
   }
 }
 input {

@@ -11,24 +11,26 @@
         <legend>{{imageObj.name}}</legend>
         <div>
           <img class="image" v-img="imageObj.image" draggable="false" />
-          <button class="passwordButton">隠し画像パスワード設定</button>
+          <ctrl-button class="passwordButton" @click="passwordButtonOnClick">隠し画像パスワード設定</ctrl-button>
           <label class="passwordLabel">隠し画像パスワード：{{imageObj.password !== '' ? 'あり' : 'なし'}}</label>
           <span class="tagLabel">付与するタグ(半角・全角スペースで区切り)</span>
           <input class="tagInput" type="text" @change="changeTag(imageObj.key)" v-model="imageObj.currentTag" />
-          <select class="tagSelect" @change="selectTag(imageObj.key)" v-model="imageObj.selectTag">
+          <ctrl-select class="tagSelect" @input="selectTag(imageObj.key)" v-model="imageObj.selectTag">
             <option v-for="tagObj in imageTagList.slice(1)" :key="tagObj.key" :value="tagObj.name">{{tagObj.name}}</option>
-          </select>
+          </ctrl-select>
         </div>
       </fieldset>
       <div class="operateArea">
-        <button @click="commit" :disabled="!imageList">決定</button>
-        <button @click="cancel" :disabled="!imageList">キャンセル</button>
+        <ctrl-button @click="commit" :disabled="!imageList">決定</ctrl-button>
+        <ctrl-button @click="cancel" :disabled="!imageList">キャンセル</ctrl-button>
       </div>
     </div>
   </window-frame>
 </template>
 
 <script lang="ts">
+import CtrlButton from "@/components/parts/CtrlButton.vue";
+import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 import WindowFrame from "../WindowFrame.vue";
 import WindowMixin from "../WindowMixin.vue";
 
@@ -38,6 +40,8 @@ import { Component, Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: {
+    CtrlSelect,
+    CtrlButton,
     WindowFrame
   }
 })
@@ -52,7 +56,7 @@ export default class DropImageWindow extends Mixins<WindowMixin>(WindowMixin) {
 
   private imageList: any[] = [];
 
-  commit(): void {
+  private commit(): void {
     this.imageList.forEach(imageObj => {
       this.addImage({
         name: imageObj.name,
@@ -68,13 +72,15 @@ export default class DropImageWindow extends Mixins<WindowMixin>(WindowMixin) {
       property: "private.display.dropImageWindow.imageDataList"
     });
   }
-  cancel(): void {
+
+  private cancel(): void {
     this.windowClose("private.display.dropImageWindow");
     this.emptyProperty({
       property: "private.display.dropImageWindow.imageDataList"
     });
   }
-  getKeyObj(list: any[], key: string): any {
+
+  private getKeyObj(list: any[], key: string): any {
     const filteredList = list.filter(obj => obj.key === key);
     if (filteredList.length === 0) {
       window.console.log(`key:"${key}" is not find.`);
@@ -86,13 +92,18 @@ export default class DropImageWindow extends Mixins<WindowMixin>(WindowMixin) {
     }
     return filteredList[0];
   }
-  changeTag(key: string): void {
+
+  private passwordButtonOnClick(): void {
+    alert("未実装です。");
+  }
+
+  private changeTag(key: string): void {
     // 入力によってタグの追加・削除が発生する可能性があるので、タグリストを整理してもらう
     window.console.log("changeTag");
     this.imageTagChange({ key: key, imageList: this.imageList });
   }
 
-  selectTag(key: string): void {
+  private selectTag(key: string): void {
     const imgObj = this.getKeyObj(this.imageList, key);
     window.console.log(imgObj.currentTag, imgObj.selectTag);
     imgObj.currentTag = imgObj.selectTag;
@@ -103,7 +114,7 @@ export default class DropImageWindow extends Mixins<WindowMixin>(WindowMixin) {
   }
 
   @Watch("dropImageList")
-  onChangeDropImageList(dropImageList: any[]): void {
+  private onChangeDropImageList(dropImageList: any[]): void {
     this.imageList = dropImageList.map(imgObj => ({
       key: imgObj.key,
       name: imgObj.name,

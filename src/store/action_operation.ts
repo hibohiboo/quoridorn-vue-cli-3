@@ -272,11 +272,27 @@ export default {
       rootState.public.image.list.push({
         key,
         name,
-        tag,
+        tag: tag.trim(),
         data,
         thumbnail,
         imageArgList,
         owner
+      });
+
+      const regExp: RegExp = new RegExp("[ 　]+", "g");
+      const tagStrList: string[] = tag.trim().split(regExp);
+      tagStrList.forEach(tagStr => {
+        let tagObj: any = rootGetters.imageTagList.filter(
+          (imageTagObj: any) => imageTagObj.name === tagStr
+        )[0];
+        if (!tagObj) {
+          const key: string = `imgTag-${++rootState.public.image.tags.maxKey}`;
+          tagObj = {
+            key,
+            name: tagStr
+          };
+          rootGetters.imageTagList.push(tagObj);
+        }
       });
       if (rootGetters.playerKey === owner) {
         rootGetters.historyList.push({ type: "add", key });
@@ -473,7 +489,7 @@ export default {
       { dispatch, rootGetters }: { dispatch: Function; rootGetters: any },
       payload: any
     ) => {
-      payload.owner = rootGetters.playerKey;
+      payload.owner = payload.owner || rootGetters.playerKey;
       dispatch("sendNoticeOperation", {
         value: payload,
         method: "doAddListObj"
@@ -496,7 +512,7 @@ export default {
       delete payload.ownerPeerId;
       delete payload.isNotice;
 
-      window.console.log(payload.owner);
+      // window.console.log(payload);
 
       if (rootGetters.playerKey === payload.owner) {
         rootGetters.historyList.push({ type: "add", key });

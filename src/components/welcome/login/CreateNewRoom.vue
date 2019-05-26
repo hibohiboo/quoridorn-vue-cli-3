@@ -8,7 +8,7 @@
     </div>
 
     <label class="roomName">部屋名：<input ref="roomNameInput" type="text" v-model="roomName" placeholder="必須項目" @keypress.enter="commitRoomName"/>
-      <button @click="commitRoomName" type="button">チェック</button>
+      <ctrl-button @click="commitRoomName" type="button">チェック</ctrl-button>
     </label>
 
     <!----------------------
@@ -29,7 +29,7 @@
         <label class="playerPassword">パスワード：<input type="password" v-model="playerPassword"/></label>
         <div class="description">部屋内でのプレイヤー管理に使用します。パスワード忘れに注意！</div>
       </fieldset>
-      <button @click="doWaitRoom" type="button"><i class="icon-home3"></i> 仮入室</button>
+      <ctrl-button @click="doWaitRoom" type="button"><i class="icon-home3"></i> 仮入室</ctrl-button>
     </div>
 
     <!----------------------
@@ -49,7 +49,7 @@
         <div class="description">権限の詳細は<a @click="onClickDescription" href="javascript:void(0);">こちら</a></div>
       </fieldset>
       -->
-      <button @click="roomProcess(false)" type="button"><i class="icon-home3"></i> 入室</button>
+      <ctrl-button @click="roomProcess(false)" type="button"><i class="icon-home3"></i> 入室</ctrl-button>
     </div>
 
     <!----------------------
@@ -73,22 +73,23 @@
         <div class="description">部屋内でのプレイヤー管理に使用します。パスワード忘れに注意！</div>
         <div class="description">権限の詳細は<a @click="onClickDescription" href="javascript:void(0);">こちら</a></div>
       </fieldset>
-      <button @click="roomProcess(true)" type="button"><i class="icon-home3"></i> 作成</button>
+      <ctrl-button @click="roomProcess(true)" type="button"><i class="icon-home3"></i> 作成</ctrl-button>
     </div>
   </fieldset>
 </template>
 
 <script lang="ts">
 import SubBlockTitle from "./SubBlockTitle.vue";
-import { Component, Vue, Watch } from "vue-property-decorator";
-
+import CtrlButton from "@/components/parts/CtrlButton.vue";
 import DiceBotSelect from "@/components/parts/select/DiceBotSelect.vue";
 import PlayerTypeSelect from "@/components/parts/select/PlayerTypeSelect.vue";
 
+import { Component, Vue, Watch } from "vue-property-decorator";
 import { Action, Getter, Mutation } from "vuex-class";
 
 @Component({
   components: {
+    CtrlButton,
     SubBlockTitle,
     DiceBotSelect,
     PlayerTypeSelect
@@ -453,11 +454,11 @@ fieldset.root > legend {
   text-align: center !important;
   margin-bottom: 0.5em;
 
-  > button {
+  > .ctrl-button-wrapper {
     margin-top: 0.5rem;
   }
 
-  > *:not(button) {
+  > *:not(.ctrl-button-wrapper) {
     text-align: left;
     margin-left: 4rem;
   }
@@ -483,7 +484,7 @@ label {
     display: block;
   }
 
-  &:not(.roomPassword) {
+  &:not(.roomPassword):not(.ctrl-button-wrapper) {
     display: flex;
 
     > input {
@@ -491,14 +492,9 @@ label {
     }
   }
 
-  button {
+  .ctrl-button-wrapper {
     padding: 0 5px;
     font-size: 11px;
-  }
-
-  select {
-    padding: 1px 2px;
-    font-size: 13px;
   }
 }
 </style>

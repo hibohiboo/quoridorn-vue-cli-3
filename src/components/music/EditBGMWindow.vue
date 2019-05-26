@@ -20,7 +20,7 @@
           <!-- クレジットURL -->
           <label class="creditUrl"><span>CreditURL</span><input type="text" v-model="creditUrl" placeholder="未実装"></label>
           <!-- クレジット取得 -->
-          <button class="getCredit" @click="getCredit">取得</button>
+          <ctrl-button class="getCredit" @click="getCredit">取得</ctrl-button>
         </div>
       </fieldset>
       <fieldset>
@@ -39,7 +39,7 @@
             :mutable="false"
             ref="volumeComponent"/>
           <!-- プレビュー -->
-          <button class="preview" @click="preview">プレビュー</button>
+          <ctrl-button class="preview" @click="preview">プレビュー</ctrl-button>
         </div>
         <div>
           <!-- 再生開始 -->
@@ -75,9 +75,9 @@
         <legend>チャット連動</legend>
         <div class="lastWide">
           <!-- チャット連動オプション -->
-          <label class="option"><select v-model="chatLinkage">
+          <label class="option"><ctrl-select v-model="chatLinkage">
             <option v-for="opt in options" :value="opt.value" :key="opt.value">{{opt.label}}</option>
-          </select></label>
+          </ctrl-select></label>
           <!-- 検索文字 -->
           <label
             class="search"
@@ -87,8 +87,8 @@
       </fieldset>
       <div class="buttonArea">
         <div>
-          <button @click="commit">確定</button>
-          <button @click="cancel">キャンセル</button>
+          <ctrl-button @click="commit">確定</ctrl-button>
+          <ctrl-button @click="cancel">キャンセル</ctrl-button>
         </div>
       </div>
     </div>
@@ -96,15 +96,20 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
 import WindowFrame from "../WindowFrame";
 import WindowMixin from "../WindowMixin";
+import CtrlButton from "../parts/CtrlButton";
+import CtrlSelect from "../parts/CtrlSelect";
 import VolumeComponent from "./component/VolumeComponent";
+
+import { mapState, mapActions } from "vuex";
 
 export default {
   name: "editBGMWindow",
   mixins: [WindowMixin],
   components: {
+    CtrlSelect,
+    CtrlButton,
     WindowFrame,
     VolumeComponent
   },

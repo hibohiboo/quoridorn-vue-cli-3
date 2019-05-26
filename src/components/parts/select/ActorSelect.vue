@@ -1,19 +1,20 @@
 <template>
-  <select-base :defaultLabel="defaultLabel" v-model="localValue">
-    <option :key="actor.key" :value="actor.key" v-for="actor in selectActors">{{actor.name}}</option>
-  </select-base>
+  <ctrl-select
+    v-model="localValue"
+    :optionInfoList="optionInfoList"
+  />
 </template>
 
 <script lang="ts">
-import SelectMixin from "./base/SelectMixin.vue";
-import SelectBase from "./base/SelectBase.vue";
+import SelectMixin from "./base/SelectMixin";
+import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 
 import { Prop } from "vue-property-decorator";
 import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
 
 @Component({
-  components: { SelectBase }
+  components: { CtrlSelect }
 })
 export default class SelfActorSelect extends Mixins<SelectMixin>(SelectMixin) {
   @Getter("getAllActors") private getAllActors: any;
@@ -24,13 +25,29 @@ export default class SelfActorSelect extends Mixins<SelectMixin>(SelectMixin) {
   @Prop({ type: Array, required: true })
   private selectedActorList!: any[];
 
-  get selectActors(): any[] {
+  private get selectActors(): any[] {
     return this.getAllActors.filter(
       (actor: any) =>
         this.selectedActorList.findIndex(
           standActor => standActor.key === actor.key
         ) === -1
     );
+  }
+
+  private get optionInfoList(): any[] {
+    const resultList = this.selectActors.map(actor => ({
+      key: actor.key,
+      value: actor.key,
+      text: actor.name,
+      disabled: false
+    }));
+    resultList.unshift({
+      key: null,
+      value: "",
+      text: this.defaultLabel,
+      disabled: true
+    });
+    return resultList;
   }
 }
 </script>

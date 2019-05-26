@@ -14,35 +14,34 @@
           v-for="(infoObj, index) in publicCounterRemoconList"
           :key="index"
         >
-          <button
-            @click.left.stop="event => remoconButtonOnClick(infoObj, event)"
-            @click.right="event => openContext(event, infoObj.key)"
-            @contextmenu.prevent
-          >{{infoObj.buttonName}}</button>
+          <ctrl-button
+            @click="event => remoconButtonOnClick(infoObj, event)"
+            @click-right="event => openContext(event, infoObj.key)"
+          >{{infoObj.buttonName}}</ctrl-button>
         </label>
       </div>
 
       <!-- 操作エリア -->
       <div class="playOperationArea">
         <!-- セーブボタン -->
-        <button
+        <ctrl-button
           class="save"
           @click="saveButtonOnClick"
-        >セーブ</button>
+        >セーブ</ctrl-button>
 
         <!-- ロードボタン -->
-        <button
+        <ctrl-button
           class="load"
           @click="loadButtonOnClick"
-        >ロード</button>
+        >ロード</ctrl-button>
 
         <span style="flex: 1"></span>
 
         <!-- ボタン追加ボタン -->
-        <button
+        <ctrl-button
           class="add"
           @click="addButtonOnClick"
-        >ボタン追加</button>
+        >ボタン追加</ctrl-button>
       </div>
     </div>
     <div
@@ -68,6 +67,7 @@
 <script lang="ts">
 import WindowMixin from "../WindowMixin.vue";
 import WindowFrame from "../WindowFrame.vue";
+import CtrlButton from "@/components/parts/CtrlButton.vue";
 
 import { Action, Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
@@ -75,6 +75,7 @@ import { listDelete } from "@/components/common/Utility";
 
 @Component({
   components: {
+    CtrlButton,
     WindowFrame
   }
 })
@@ -513,6 +514,7 @@ export default class CounterRemoconWindow extends Mixins<WindowMixin>(
   font-size: 12px;
   display: flex;
   flex-direction: column;
+  z-index: 0;
 
   .playOperationArea {
     display: flex;
@@ -560,6 +562,7 @@ export default class CounterRemoconWindow extends Mixins<WindowMixin>(
   display: flex;
   flex-direction: column;
   border: 1px solid lightgray;
+  z-index: 1;
 }
 
 .selectItem {
@@ -597,14 +600,6 @@ export default class CounterRemoconWindow extends Mixins<WindowMixin>(
         border-color: transparent transparent transparent #000000;
       }
     }
-  }
-}
-
-button {
-  border-radius: 0.5em;
-
-  &:disabled {
-    background-color: lightgrey;
   }
 }
 </style>
