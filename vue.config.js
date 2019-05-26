@@ -5,8 +5,10 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 
 module.exports = {
-  baseUrl: process.env.VUE_APP_BASE_URL,
+  publicPath: process.env.VUE_APP_BASE_URL,
   devServer: {
+    // sock.js用に仮想環境のIPとポートを指定
+    public: "192.168.50.10:8080",
     watchOptions: {
       poll: true
     },
@@ -30,7 +32,8 @@ module.exports = {
         threshold: 1024,
         minRatio: 0.8
       }),
-      new BundleAnalyzerPlugin()
+      // buildの後にanalyzerが動いてctrl + Cで終わらなければならなくなるのでコメントアウト
+      // new BundleAnalyzerPlugin()
     ]
   },
   // yamlローダーの追加
