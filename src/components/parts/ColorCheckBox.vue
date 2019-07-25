@@ -1,14 +1,14 @@
 <template>
   <label @contextmenu.prevent>
-    <span v-if="label && labelSide === 'left'">{{label}}</span>
+    <span v-if="label && labelSide === 'left'">{{ label }}</span>
     <input
       type="checkbox"
       v-model="value"
       @change="event => onChange(event.target.checked)"
       :style="{ backgroundColor: value ? color : 'white' }"
-    >
+    />
     <span class="designed"></span>
-    <span v-if="label && labelSide !== 'left'">{{label}}</span>
+    <span v-if="label && labelSide !== 'left'">{{ label }}</span>
   </label>
 </template>
 
@@ -37,11 +37,15 @@ export default class ColorCheckBox extends Vue {
   @Emit("change")
   onChange(checked: boolean) {}
 
+  @Watch("checked")
+  private onChangeChecked(checked: boolean) {
+    this.value = checked;
+  }
+
   private value: boolean = false;
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 input[type="checkbox"] {
   outline: none;

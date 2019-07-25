@@ -1,21 +1,45 @@
 <template>
   <context-frame displayProperty="private.display.diceSymbolContext">
     <template v-if="!isAbsoluteHide">
-      <div class="item" @click.left.prevent="openOnClick" v-if="isHide">ダイス目を公開する</div>
-      <div class="item" @click.left.prevent="diceRollOnClick">ダイスを振る</div>
-      <hr>
+      <div class="item" @click.left.prevent="openOnClick" v-if="isHide">
+        ダイス目を公開する
+      </div>
+
+      <div class="item" @click.left.prevent="diceRollOnClick">
+        ダイスを振る
+      </div>
+
+      <hr />
+
       <div
         v-for="pips in pipsList"
         :key="pips"
         class="item"
         @click.left.prevent="changePipsOnClick(pips)"
-      >ダイス目を{{pips}}に</div>
-      <hr v-if="!isHide">
-      <div class="item" @click.left.prevent="hideOnClick" v-if="!isHide">ダイス目を隠す</div>
-      <hr>
-      <div class="item" @click.left.prevent="deleteDiceOnClick">ダイスの削除</div>
+      >
+        ダイス目を{{ pips }}に
+      </div>
+
+      <hr v-if="!isHide" />
+
+      <div class="item" @click.left.prevent="hideOnClick" v-if="!isHide">
+        ダイス目を隠す
+      </div>
+
+      <hr />
+
+      <div class="item" @click.left.prevent="deleteDiceOnClick">
+        ダイスの削除
+      </div>
     </template>
-    <div class="item disabled" v-if="isAbsoluteHide" @click.left.prevent="closeContextOnClick">操作できません</div>
+
+    <div
+      class="item disabled"
+      v-if="isAbsoluteHide"
+      @click.left.prevent="closeContextOnClick"
+    >
+      操作できません
+    </div>
   </context-frame>
 </template>
 
@@ -35,7 +59,7 @@ export default class DiceSymbolContext extends Mixins<WindowMixin>(
   @Action("changeListObj") private changeListObj: any;
   @Action("deleteListObj") private deleteListObj: any;
   @Action("sendBcdiceServer") private sendBcdiceServer: any;
-  @Action("addSimpleChatLog") private addSimpleChatLog: any;
+  @Action("addChatLog") private addChatLog: any;
   @Getter("getObj") private getObj: any;
   @Getter("dice") private dice: any;
   @Getter("playerKey") private playerKey: any;
@@ -59,7 +83,7 @@ export default class DiceSymbolContext extends Mixins<WindowMixin>(
           const pips: number = parseInt(resultValue, 10);
           // ログに出力
           if (!diceObj.isHide) {
-            this.addSimpleChatLog({
+            this.addChatLog({
               text: `ダイス合計：${pips}(${command} = [${pips}])`
             });
           }
@@ -81,7 +105,7 @@ export default class DiceSymbolContext extends Mixins<WindowMixin>(
     }」のダイスシンボルの値が変更されました。`;
     if (!diceObj.isHide) text += `(${diceObj.pips}→${pips})`;
     // ログに出力
-    this.addSimpleChatLog({ text });
+    this.addChatLog({ text });
     this.windowClose("private.display.diceSymbolContext");
 
     // ダイスシンボルに反映
@@ -94,6 +118,19 @@ export default class DiceSymbolContext extends Mixins<WindowMixin>(
 
   private openOnClick() {
     this.changeListObj({ key: this.objKey, isHide: false });
+
+    const diceObj: any = this.getObj(this.objKey);
+    const ownerPlayer: any = this.getObj(diceObj.owner);
+    let text: string = [
+      "「",
+      ownerPlayer.name,
+      "」のダイスがオープンされました。出目は",
+      diceObj.pips,
+      `(${diceObj.faceNum}面ダイス)です`
+    ].join("");
+    // ログに出力
+    this.addChatLog({ text, isDiceBot: true });
+
     this.windowClose("private.display.diceSymbolContext");
   }
 

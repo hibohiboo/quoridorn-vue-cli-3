@@ -1,70 +1,98 @@
 <template>
-  <window-frame titleText="グループチャット設定画面" display-property="private.display.settingChatTargetTabWindow" align="center" :fixSize="`${windowSize.w}, ${windowSize.h}`">
+  <window-frame
+    titleText="グループチャット設定画面"
+    display-property="private.display.settingChatTargetTabWindow"
+    align="center"
+    :fixSize="`${windowSize.w}, ${windowSize.h}`"
+  >
     <div class="contents" @contextmenu.prevent>
       <div>
-        <ctrl-button type="button" @click="addButtonOnClick">追加</ctrl-button>
-        <ctrl-button type="button" @click="delButtonOnClick">削除</ctrl-button>
+        <ctrl-button @click="addButtonOnClick">追加</ctrl-button>
+        <ctrl-button @click="delButtonOnClick">削除</ctrl-button>
+        <label>
+          タブを斜めにする<input type="checkbox" v-model="isTabVertical" />
+        </label>
       </div>
       <div class="tableContainer">
         <table @mousemove="event => moveDev(event)" @mouseup="moveDevEnd">
           <thead>
-          <tr>
-            <th :style="colStyle(0)">秘匿</th><divider :index="0" prop="settingChatTargetTabWindow"/>
-            <th :style="colStyle(1)">名前</th><divider :index="1" prop="settingChatTargetTabWindow"/>
-            <th :style="colStyle(2)">出力先タブ</th><divider :index="2" prop="settingChatTargetTabWindow"/>
-            <th :style="colStyle(3)">送信先</th><divider :index="3" prop="settingChatTargetTabWindow"/>
-            <th :style="colStyle(4)"></th>
-          </tr>
+            <tr>
+              <th :style="colStyle(0)">秘匿</th>
+              <divider :index="0" prop="settingChatTargetTabWindow" />
+              <th :style="colStyle(1)">名前</th>
+              <divider :index="1" prop="settingChatTargetTabWindow" />
+              <th :style="colStyle(2)">出力先タブ</th>
+              <divider :index="2" prop="settingChatTargetTabWindow" />
+              <th :style="colStyle(3)">送信先</th>
+              <divider :index="3" prop="settingChatTargetTabWindow" />
+              <th :style="colStyle(4)"></th>
+            </tr>
           </thead>
           <tbody>
-          <!-- ===============================================================
-            コンテンツ
-          -->
-          <tr v-for="groupTargetTab in groupTargetTabList"
+            <!-- ===============================================================
+              コンテンツ
+            -->
+            <tr
+              v-for="groupTargetTab in groupTargetTabList"
               :key="groupTargetTab.key"
               @click="selectLine(groupTargetTab.key)"
-              :class="{isActive: selectLineKey === groupTargetTab.key}">
+              :class="{ isActive: selectLineKey === groupTargetTab.key }"
+            >
+              <!-- 秘匿チェック -->
+              <td :style="colStyle(0)">
+                <span
+                  class="icon-checkmark"
+                  v-if="groupTargetTab.isSecret"
+                ></span>
+              </td>
+              <divider :index="0" prop="settingChatTargetTabWindow" />
 
-            <!-- 秘匿チェック -->
-            <td :style="colStyle(0)">
-              <span class="icon-checkmark" v-if="groupTargetTab.isSecret"></span>
-            </td>
-            <divider :index="0" prop="settingChatTargetTabWindow"/>
+              <!-- 名前 -->
+              <td :style="colStyle(1)">
+                {{ groupTargetTab.name }}
+              </td>
+              <divider :index="1" prop="settingChatTargetTabWindow" />
 
-            <!-- 名前 -->
-            <td :style="colStyle(1)">
-              {{groupTargetTab.name}}
-            </td>
-            <divider :index="1" prop="settingChatTargetTabWindow"/>
+              <!-- 出力先タブ -->
+              <td :style="colStyle(2)">
+                {{
+                  groupTargetTab.targetTab
+                    ? groupTargetTab.targetTab
+                    : "指定なし"
+                }}
+              </td>
+              <divider :index="2" prop="settingChatTargetTabWindow" />
 
-            <!-- 出力先タブ -->
-            <td :style="colStyle(2)">
-              {{groupTargetTab.targetTab ? groupTargetTab.targetTab : '指定なし'}}
-            </td>
-            <divider :index="2" prop="settingChatTargetTabWindow"/>
+              <!-- 送信先 -->
+              <td
+                :style="colStyle(3)"
+                style="text-align: left; padding: 0 0.3rem;"
+              >
+                {{ getViewNames(groupTargetTab) }}
+              </td>
+              <divider :index="2" prop="settingChatTargetTabWindow" />
 
-            <!-- 送信先 -->
-            <td :style="colStyle(3)" style="text-align: left; padding: 0 0.3rem;">
-              {{getViewNames(groupTargetTab)}}
-            </td>
-            <divider :index="2" prop="settingChatTargetTabWindow"/>
-
-            <!-- 編集ボタン -->
-            <td :style="colStyle(4)">
-              <ctrl-button
-                type="button"
-                @click="edit(groupTargetTab.key)"
-                :disabled="groupTargetTab.key === 'groupTargetTab-0'"
-              >編集</ctrl-button>
-            </td>
-          </tr>
-          <tr class="space">
-            <td :style="colStyle(0)"></td><divider :index="0" prop="settingChatTargetTabWindow"/>
-            <td :style="colStyle(1)"></td><divider :index="1" prop="settingChatTargetTabWindow"/>
-            <td :style="colStyle(2)"></td><divider :index="2" prop="settingChatTargetTabWindow"/>
-            <td :style="colStyle(3)"></td><divider :index="3" prop="settingChatTargetTabWindow"/>
-            <td :style="colStyle(4)"></td>
-          </tr>
+              <!-- 編集ボタン -->
+              <td :style="colStyle(4)">
+                <ctrl-button
+                  @click="edit(groupTargetTab.key)"
+                  :disabled="groupTargetTab.key === 'groupTargetTab-0'"
+                >
+                  編集
+                </ctrl-button>
+              </td>
+            </tr>
+            <tr class="space">
+              <td :style="colStyle(0)"></td>
+              <divider :index="0" prop="settingChatTargetTabWindow" />
+              <td :style="colStyle(1)"></td>
+              <divider :index="1" prop="settingChatTargetTabWindow" />
+              <td :style="colStyle(2)"></td>
+              <divider :index="2" prop="settingChatTargetTabWindow" />
+              <td :style="colStyle(3)"></td>
+              <divider :index="3" prop="settingChatTargetTabWindow" />
+              <td :style="colStyle(4)"></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -101,9 +129,16 @@ export default class SettingChatTargetTabWindow extends Mixins<WindowMixin>(
   @Getter("getObj") private getObj: any;
   @Getter("playerKey") private playerKey: any;
   @Getter("chatActorKey") private chatActorKey: any;
+  @Getter("isChatTabVertical") private isChatTabVertical: any;
 
   private addButtonOnClick() {
-    this.addGroupTargetTab({ ownerKey: this.getChatFromKey() });
+    this.addGroupTargetTab({ ownerKey: this.getChatFromKey() }).then(() => {
+      const last: any = this.groupTargetTabList[
+        this.groupTargetTabList.length - 1
+      ];
+      this.selectLine(last.key);
+      this.edit(last.key);
+    });
   }
 
   private delButtonOnClick() {
@@ -277,10 +312,20 @@ export default class SettingChatTargetTabWindow extends Mixins<WindowMixin>(
     return this.$store.state.private.display.settingChatTargetTabWindow
       .windowSize;
   }
+
+  private get isTabVertical() {
+    return this.isChatTabVertical;
+  }
+  private set isTabVertical(flg: boolean) {
+    this.setProperty({
+      property: `private.display.settingChatTargetTabWindow.isTabVertical`,
+      value: flg,
+      logOff: true
+    });
+  }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .contents {
   position: absolute;
@@ -291,12 +336,6 @@ export default class SettingChatTargetTabWindow extends Mixins<WindowMixin>(
 
 label {
   display: flex;
-  margin-top: 5px;
-
-  input {
-    flex: 1;
-    margin-left: 5px;
-  }
 }
 
 .operateArea {
@@ -365,14 +404,14 @@ table tbody {
       &.isActive {
         background-color: rgb(127, 206, 255) !important;
       }
-    }
 
-    &:nth-child(odd):hover {
-      background: rgb(178, 225, 255);
-    }
+      &:nth-child(odd):hover {
+        background: rgb(178, 225, 255);
+      }
 
-    &:nth-child(even):hover {
-      background: rgb(178, 225, 255);
+      &:nth-child(even):hover {
+        background: rgb(178, 225, 255);
+      }
     }
   }
 }
@@ -413,18 +452,6 @@ td i {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-table select {
-  width: 100%;
-  height: 100%;
-  background: none;
-  border: none;
-}
-
-table input {
-  background: none;
-  border: none;
 }
 
 button {

@@ -1,11 +1,13 @@
 <template>
   <canvas
     id="map-canvas"
-    :class="{ isReverse : isReverse }"
+    :class="{ isReverse: isReverse }"
     :width="canvasSize.w"
     :height="canvasSize.h"
     v-bg-img="getBackgroundImage"
-    @contextmenu.prevent></canvas>
+    @contextmenu.prevent
+  >
+  </canvas>
 </template>
 
 <script lang="ts">
@@ -148,7 +150,6 @@ export default class MapBoard extends Mixins<CanvasMixin>(CanvasMixin) {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 canvas {
   position: absolute;

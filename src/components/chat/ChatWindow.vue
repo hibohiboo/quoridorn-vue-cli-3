@@ -3,44 +3,40 @@
     titleText="チャット"
     display-property="private.display.chatWindow"
     align="left-bottom"
-    baseSize="-300, 260"
+    baseSize="-300, 300"
     :fontSizeBar="true"
   >
     <div class="container">
       <!----------------
        ! タブ
        !--------------->
-      <div class="tabs dep" @contextmenu.prevent>
-        <!-- タブ -->
-        <span
-          class="tab"
-          v-for="(tabObj, index) in chatTabs"
-          :key="tabObj.name"
-          :class="{ active: tabObj.key === activeTab, unRead: tabObj.unRead > 0 }"
-          @mousedown.prevent="chatTabOnSelect(tabObj.key)"
-          :tabindex="index + 1"
-        >#{{tabObj.name}}/{{tabObj.unRead}}</span>
-
-        <!-- タブ設定ボタン -->
-        <span
-          class="tab addButton"
-          @click="tabAddButtonOnClick"
-          :tabindex="chatTabs.length + 1"
-        ><span class="icon-cog"></span></span>
-      </div>
+      <tabs-component
+        :tabIndex="0"
+        :tabList="chatTabs"
+        :activeChatTab="activeChatTab"
+        :hoverChatTab="hoverChatTab"
+        :isVertical="isChatTabVertical"
+        :textFunc="info => `#${info.name}/${info.unRead}`"
+        @onSelect="chatTabOnSelect"
+        @onHover="chatTabOnHover"
+        @editTab="tabAddButtonOnClick"
+      />
 
       <!----------------
        ! チャットログ
        !--------------->
       <ul id="chatLog" class="selectable" @wheel.stop>
-        <li v-for="(chatLog, index) in chatLogList" v-html="chatLog.viewHtml" :key="index"></li>
+        <li
+          v-for="(chatLog, index) in chatLogList"
+          v-html="chatLog.viewHtml"
+          :key="index"
+        ></li>
       </ul>
 
       <!----------------
        ! 操作盤
        !--------------->
       <label class="oneLine dep" @contextmenu.prevent>
-
         <!-- 発言者選択 -->
         <span class="label">名前(！)</span>
         <ctrl-select
@@ -48,7 +44,13 @@
           :value="chatActorKey"
           @input="updateActorKey"
           title=""
-          :optionInfoList="getSelfActors.map(actor => ({ key: actor.key, value: actor.key, text: getViewName(actor.key) }))"
+          :optionInfoList="
+            getSelfActors.map(actor => ({
+              key: actor.key,
+              value: actor.key,
+              text: getViewName(actor.key)
+            }))
+          "
         />
 
         <!-- ステータス選択 -->
@@ -150,94 +152,227 @@
           <!----------------
            ! グループチャットタブ
            !--------------->
-          <div class="tabs" @contextmenu.prevent>
-
-            <!-- グループチャットタブ -->
-            <span
-              class="tab"
-              v-for="(tabObj, index) in groupTargetTabList"
-              :key="tabObj.key"
-              :class="{ active: tabObj.key === chatTarget }"
-              @mousedown.prevent="groupTargetTabOnSelect(tabObj.key)"
-              :tabindex="chatTabs.length + 14 + index"
-            >&gt; {{tabObj.name}}{{otherMatcherObj(tabObj) ? `(${getViewName(otherMatcherObj(tabObj).key)})` : ''}}</span>
-
-            <!-- グループチャットタブ編集ボタン -->
-            <span
-              class="tab addButton"
-              @click="targetTabAddButtonOnClick"
-              :tabindex="chatTabs.length + chatTabs.length + 14"
-            ><span class="icon-cog"></span></span>
-
+          <tabs-component
+            class="group"
+            :tabIndex="chatTabs.length + 13"
+            :tabList="groupTargetTabList"
+            :activeChatTab="chatTarget"
+            :hoverChatTab="hoverChatTargetTab"
+            :isVertical="isTargetTabVertical"
+            :textFunc="
+              info =>
+                `${info.name}${
+                  otherMatcherObj(info)
+                    ? `(${getViewName(otherMatcherObj(info).key)})`
+                    : ''
+                }`
+            "
+            @onSelect="groupTargetTabOnSelect"
+            @onHover="groupTargetTabOnHover"
+            @editTab="targetTabAddButtonOnClick"
+          >
             <!-- 「」付与チェックボックス -->
             <label class="bracketOption">
-              <input type="checkbox" v-model="addBrackets" :tabindex="chatTabs.length + chatTabs.length + 15" />
+              <input
+                type="checkbox"
+                v-model="addBrackets"
+                :tabindex="chatTabs.length + chatTabs.length + 15"
+              />
               発言時に「」を付与
             </label>
-
-          </div>
+          </tabs-component>
 
           <!----------------
            ! チャットオプション（送信者）
            !--------------->
-          <div class="chatOptionSelector dep" v-if="chatOptionSelectMode === 'from'" @contextmenu.prevent>
-            <span>送信者{{chatOptionPageMaxNum > 1 ? ` (${chatOptionPageNum} / ${chatOptionPageMaxNum})` : ''}}</span>
+          <div
+            class="chatOptionSelector dep"
+            v-if="chatOptionSelectMode === 'from'"
+            @contextmenu.prevent
+          >
+            <span
+              >送信者{{
+                chatOptionPageMaxNum > 1
+                  ? ` (${chatOptionPageNum} / ${chatOptionPageMaxNum})`
+                  : ""
+              }}</span
+            >
             <ul>
-              <li class="ope" v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum === 1">[末尾へ]</li>
-              <li class="ope" v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum !== 1">[前へ]</li>
-              <li v-for="actor in chatOptionPagingList"
-                  :key="actor.name"
-                  :class="{selected: actor.key === chatActorKey && actor.statusName === statusName}"
-                  tabindex="-1"
-              >{{actor.name}}</li>
-              <li class="ope" v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum !== chatOptionPageMaxNum">[次へ]</li>
-              <li class="ope" v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum === chatOptionPageMaxNum">[先頭へ]</li>
+              <li
+                class="ope"
+                v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum === 1"
+              >
+                [末尾へ]
+              </li>
+              <li
+                class="ope"
+                v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum !== 1"
+              >
+                [前へ]
+              </li>
+              <li
+                v-for="actor in chatOptionPagingList"
+                :key="actor.name"
+                :class="{
+                  selected:
+                    actor.key === chatActorKey &&
+                    actor.statusName === statusName
+                }"
+                tabindex="-1"
+              >
+                {{ actor.name }}
+              </li>
+              <li
+                class="ope"
+                v-if="
+                  chatOptionPageMaxNum > 1 &&
+                    chatOptionPageNum !== chatOptionPageMaxNum
+                "
+              >
+                [次へ]
+              </li>
+              <li
+                class="ope"
+                v-if="
+                  chatOptionPageMaxNum > 1 &&
+                    chatOptionPageNum === chatOptionPageMaxNum
+                "
+              >
+                [先頭へ]
+              </li>
             </ul>
           </div>
 
           <!----------------
            ! チャットオプション（対象）
            !--------------->
-          <div class="chatOptionSelector dep" v-if="chatOptionSelectMode === 'target'" @contextmenu.prevent>
-            <span>送信先{{chatOptionPageMaxNum > 1 ? ` (${chatOptionPageNum} / ${chatOptionPageMaxNum})` : ''}}</span>
+          <div
+            class="chatOptionSelector dep"
+            v-if="chatOptionSelectMode === 'target'"
+            @contextmenu.prevent
+          >
+            <span
+              >送信先{{
+                chatOptionPageMaxNum > 1
+                  ? ` (${chatOptionPageNum} / ${chatOptionPageMaxNum})`
+                  : ""
+              }}</span
+            >
             <ul>
-              <li class="ope" v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum === 1">[末尾へ]</li>
-              <li class="ope" v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum !== 1">[前へ]</li>
-              <li v-for="target in chatOptionPagingList"
-                  :key="target.key"
-                  :class="{selected: chatTarget === target.key}"
-                  tabindex="-1"
-              >{{getViewName(target.key)}}</li>
-              <li class="ope" v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum !== chatOptionPageMaxNum">[次へ]</li>
-              <li class="ope" v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum === chatOptionPageMaxNum">[先頭へ]</li>
+              <li
+                class="ope"
+                v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum === 1"
+              >
+                [末尾へ]
+              </li>
+              <li
+                class="ope"
+                v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum !== 1"
+              >
+                [前へ]
+              </li>
+              <li
+                v-for="target in chatOptionPagingList"
+                :key="target.key"
+                :class="{ selected: chatTarget === target.key }"
+                tabindex="-1"
+              >
+                {{ getViewName(target.key) }}
+              </li>
+              <li
+                class="ope"
+                v-if="
+                  chatOptionPageMaxNum > 1 &&
+                    chatOptionPageNum !== chatOptionPageMaxNum
+                "
+              >
+                [次へ]
+              </li>
+              <li
+                class="ope"
+                v-if="
+                  chatOptionPageMaxNum > 1 &&
+                    chatOptionPageNum === chatOptionPageMaxNum
+                "
+              >
+                [先頭へ]
+              </li>
             </ul>
           </div>
 
           <!----------------
            ! チャットオプション（タブ）
            !--------------->
-          <div class="chatOptionSelector dep" v-if="chatOptionSelectMode === 'tab'" @contextmenu.prevent>
-            <span>出力先のタブ{{chatOptionPageMaxNum > 1 ? ` (${chatOptionPageNum} / ${chatOptionPageMaxNum})` : ''}}</span>
+          <div
+            class="chatOptionSelector dep"
+            v-if="chatOptionSelectMode === 'tab'"
+            @contextmenu.prevent
+          >
+            <span
+              >出力先のタブ{{
+                chatOptionPageMaxNum > 1
+                  ? ` (${chatOptionPageNum} / ${chatOptionPageMaxNum})`
+                  : ""
+              }}</span
+            >
             <ul>
-              <li class="ope" v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum === 1">[末尾へ]</li>
-              <li class="ope" v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum !== 1">[前へ]</li>
+              <li
+                class="ope"
+                v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum === 1"
+              >
+                [末尾へ]
+              </li>
+              <li
+                class="ope"
+                v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum !== 1"
+              >
+                [前へ]
+              </li>
               <li
                 v-for="tab in chatOptionPagingList"
                 :key="tab.key"
-                :class="{selected: outputTab === tab.key}"
+                :class="{ selected: outputTab === tab.key }"
                 tabindex="-1"
-              >{{tab.name}}</li>
-              <li class="ope" v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum !== chatOptionPageMaxNum">[次へ]</li>
-              <li class="ope" v-if="chatOptionPageMaxNum > 1 && chatOptionPageNum === chatOptionPageMaxNum">[先頭へ]</li>
+              >
+                {{ tab.name }}
+              </li>
+              <li
+                class="ope"
+                v-if="
+                  chatOptionPageMaxNum > 1 &&
+                    chatOptionPageNum !== chatOptionPageMaxNum
+                "
+              >
+                [次へ]
+              </li>
+              <li
+                class="ope"
+                v-if="
+                  chatOptionPageMaxNum > 1 &&
+                    chatOptionPageNum === chatOptionPageMaxNum
+                "
+              >
+                [先頭へ]
+              </li>
             </ul>
           </div>
 
           <!-- チャット入力エリア -->
           <label class="chatInputArea">
-            <span class="chatOption" @click="chatOptionOnClick" @contextmenu.prevent>
-              <span class="emphasis">! {{getViewName(chatActorKey)}}-{{statusName}}</span>
-              <span :class="{emphasis: chatTarget !== 'groupTargetTab-0'}">> {{groupTargetName}}</span>
-              <span :class="{emphasis: outputTab !== null}"># {{outputTab ? getTabName(outputTab) : "[選択中]"}}</span>
+            <span
+              class="chatOption"
+              @click="chatOptionOnClick"
+              @contextmenu.prevent
+            >
+              <span class="emphasis"
+                >! {{ getViewName(chatActorKey) }}-{{ statusName }}</span
+              >
+              <span :class="{ emphasis: chatTarget !== 'groupTargetTab-0' }"
+                >> {{ groupTargetName }}</span
+              >
+              <span :class="{ emphasis: outputTab !== null }"
+                ># {{ outputTab ? getTabName(outputTab) : "[選択中]" }}</span
+              >
             </span>
             <!----------------
              ! 入力欄
@@ -247,8 +382,12 @@
               v-model="currentMessage"
               @input="onInput"
               @blur="textAreaOnBlur"
-              @keydown.up="event => chatOptionSelectChange('up', event)"
-              @keydown.down="event => chatOptionSelectChange('down', event)"
+              @keydown.up.prevent.self.stop="
+                event => chatOptionSelectChange('up', event)
+              "
+              @keydown.down.prevent.self.stop="
+                event => chatOptionSelectChange('down', event)
+              "
               @keydown.esc.prevent="textAreaOnPressEsc"
               @keypress.enter.prevent="event => sendMessage(event, true)"
               @keyup.enter.prevent="event => sendMessage(event, false)"
@@ -257,22 +396,23 @@
             ></textarea>
           </label>
         </div>
-        <ctrl-button :tabindex="chatTabs.length + chatTabs.length + 17" @contextmenu.prevent>送信</ctrl-button>
+        <ctrl-button
+          :tabindex="chatTabs.length + chatTabs.length + 17"
+          @contextmenu.prevent
+          >送信</ctrl-button
+        >
       </div>
       <!----------------
        ! 入力者表示
        !--------------->
       <div class="inputtingArea dep" @contextmenu.prevent>
-        <div
-          v-for="name in inputtingPeerIdList"
-          :key="name"
-        >
+        <div v-for="name in inputtingPeerIdList" :key="name">
           <img
             alt=""
-            v-show="inputtingPeerIdList.length>0"
+            v-show="inputtingPeerIdList.length > 0"
             :src="require('../../assets/inputting.gif')"
-          >
-          {{createInputtingMsg(name)}}
+          />
+          {{ createInputtingMsg(name) }}
         </div>
       </div>
     </div>
@@ -291,9 +431,11 @@ import CtrlButton from "@/components/parts/CtrlButton.vue";
 import { Vue, Watch } from "vue-property-decorator";
 import { Action, Getter, Mutation } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
+import TabsComponent from "@/components/parts/tab-component/TabsComponent.vue";
 
 @Component({
   components: {
+    TabsComponent,
     CtrlButton,
     CtrlSelect,
     ActorStatusSelect,
@@ -308,7 +450,8 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
   @Action("setProperty") private setProperty: any;
   @Action("sendRoomData") private sendRoomData: any;
   @Action("sendBcdiceServer") private sendBcdiceServer: any;
-  @Mutation("updateActorKey") private updateActorKey: any;
+  @Action("updateActorKey") private updateActorKey: any;
+  @Action("sendChatLog") private sendChatLog: any;
   @Mutation("addSecretDice") private addSecretDice: any;
   @Getter("getSelfActors") private getSelfActors: any;
   @Getter("getViewName") private getViewName: any;
@@ -322,7 +465,8 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
   @Getter("createInputtingMsg") private createInputtingMsg: any;
   @Getter("fontColor") private fontColor: any;
   @Getter("chatTargetList") private chatTargetList: any;
-  @Getter("activeTab") private activeTab: any;
+  @Getter("activeChatTab") private activeChatTab: any;
+  @Getter("hoverChatTab") private hoverChatTab: any;
   @Getter("hoverTab") private hoverTab: any;
   @Getter("playerKey") private playerKey: any;
   @Getter("chatOptionPagingSize") private chatOptionPagingSize: any;
@@ -330,7 +474,10 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
   @Getter("chatActorKey") private chatActorKey: any;
   @Getter("roomSystem") private roomSystem: any;
   @Getter("getChatColor") private getChatColor: any;
-  @Getter("getOwnerKey") private getOwnerKey: any;
+  @Getter("customDiceBotList") private customDiceBotList: any;
+  @Getter("customDiceBotRoomSysList") private customDiceBotRoomSysList: any;
+  @Getter("loadYaml") private loadYaml: any;
+  @Getter("isChatTabVertical") private isChatTabVertical: any;
 
   /** Enterを押しているかどうか */
   private enterPressing: boolean = false;
@@ -357,10 +504,18 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
   private volatileActiveTab: string = "";
   private volatileTargetTab: string | null = "";
   private statusName: string = "◆";
+  private hoverChatTargetTab = "";
 
   @Watch("chatActorKey", { deep: true, immediate: true })
   private onChangeChatActorKey(chatActorKey: any) {
-    this.statusName = "◆";
+    const actor: any = this.getObj(chatActorKey);
+    if (!actor) return;
+    const status: any = actor.statusList.filter(
+      (status: any) => status.name === this.statusName
+    )[0];
+    if (!status) {
+      this.statusName = "◆";
+    }
   }
 
   /**
@@ -370,6 +525,7 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
   private onInput(event: any): void {
     const text = event.target.value;
 
+    // コマンド（発言者選択）
     let selectFrom: string = "";
     if (text.startsWith("!") || text.startsWith("！")) {
       const useText = text.substring(1);
@@ -384,6 +540,7 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
       });
     }
 
+    // コマンド（グループチャット選択）
     let selectTarget: string = "";
     if (text.startsWith(">") || text.startsWith("＞")) {
       const useText = text.substring(1);
@@ -398,6 +555,7 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
       });
     }
 
+    // コマンド（タブ選択）
     let selectTab: string | null | undefined = undefined;
     if (text.startsWith("#") || text.startsWith("＃")) {
       const useText = text.substring(1);
@@ -449,7 +607,7 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
     if (!this.volatileFrom) this.volatileFrom = this.chatActorKey;
     if (!this.volatileStatusName) this.volatileStatusName = this.statusName;
     if (!this.volatileTarget) this.volatileTarget = this.chatTarget;
-    if (!this.volatileActiveTab) this.volatileActiveTab = this.activeTab;
+    if (!this.volatileActiveTab) this.volatileActiveTab = this.activeChatTab;
     if (!this.volatileTargetTab) this.volatileTargetTab = this.outputTab;
 
     // カーソル移動と、移動後の輪転処理
@@ -469,10 +627,8 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
       );
       const newValue = arrangeIndex(this.useCommandActorList, index);
 
-      this.updateActorKey(newValue.key);
-
-      // window.console.log(this.statusName, "->", newValue.statusName);
       this.statusName = newValue.statusName;
+      this.updateActorKey(newValue.key);
     }
 
     // 発言先の選択の場合
@@ -549,11 +705,23 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
    */
   private chatTabOnSelect(key: string): void {
     this.setProperty({
-      property: "chat.activeTab",
+      property: "chat.activeChatTab",
       value: key,
       logOff: true
     });
     this.chatTabSelect(key);
+  }
+
+  /**
+   * チャットログ表示タブをホバーされたときの挙動
+   * @param key タブのkey
+   */
+  private chatTabOnHover(key: string): void {
+    this.setProperty({
+      property: "chat.hoverChatTab",
+      value: key,
+      logOff: true
+    });
   }
 
   /**
@@ -571,6 +739,10 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
         this.updateActorKey(otherObj.key);
       }
     }
+  }
+
+  private groupTargetTabOnHover(targetKey: string): void {
+    this.hoverChatTargetTab = targetKey;
   }
 
   /**
@@ -598,12 +770,7 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
    * ダイスボット管理ボタンクリックイベントハンドラ
    */
   private diceBotSettingButtonOnClick(): void {
-    this.setProperty({
-      property: "private.display.unSupportWindow.title",
-      value: "ダイスボット用表管理",
-      logOff: true
-    });
-    this.windowOpen("private.display.unSupportWindow");
+    this.windowOpen("private.display.customDiceBotTableWindow");
   }
 
   /**
@@ -656,8 +823,7 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
    * チャットパレット設定ボタンクリックイベントハンドラ
    */
   private chatPaletteSettingButtonOnClick(): void {
-    // TODO
-    alert("未実装です。");
+    this.windowOpen("private.display.chatPaletteSettingWindow");
   }
 
   /**
@@ -694,7 +860,7 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
     this.enterPressing = flg;
     if (!flg) return;
     if (event.shiftKey) {
-      this.currentMessage += "\r\n";
+      this.currentMessage += "\n";
       return;
     }
     if (this.currentMessage === "") return;
@@ -711,112 +877,21 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
       return;
     }
 
-    // 文字色決定
-    const color = this.getChatColor(this.chatActorKey);
-
     // 括弧をつけるオプション
     let text = this.currentMessage;
     if (this.addBrackets) {
       text = `「${text}」`;
     }
+    this.currentMessage = "";
 
-    // 出力先タブ決定
-    let outputTab = this.outputTab;
-    if (outputTab === null) {
-      outputTab = this.activeTab;
-    }
-
-    let ownerKey: string | undefined = this.getOwnerKey(this.chatActorKey);
-
-    // -------------------
-    // ダイスBot処理
-    // -------------------
-    this.sendBcdiceServer({
-      system: this.currentDiceBotSystem,
-      command: this.currentMessage
-    })
-      .then((json: any) => {
-        let isDiceRoll: boolean = false;
-        let isSecretDice: boolean = false;
-        let diceRollResult: string | null = null;
-
-        if (json.ok) {
-          // bcdiceとして結果が取れた
-          const resultStr: string = json.result;
-          isSecretDice = json.secret;
-          diceRollResult = resultStr.replace(/(^: )/g, "").replace(/＞/g, "→");
-          isDiceRoll = true;
-        } else {
-          // bcdiceとして結果は取れなかった
-        }
-        this.currentMessage = "";
-
-        if (isDiceRoll && isSecretDice) {
-          // -------------------
-          // シークレットダイス
-          // -------------------
-          this.addChatLog({
-            name: this.getViewName(this.chatActorKey),
-            text: `シークレットダイス`,
-            color: color,
-            tab: outputTab,
-            from: ownerKey,
-            actorKey: this.chatActorKey,
-            statusName: this.statusName,
-            target: this.chatTarget,
-            owner: this.chatActorKey
-          });
-
-          // 隠しダイスロール結果画面に反映
-          this.addSecretDice({
-            name: this.getViewName(this.chatActorKey),
-            diceBot: this.currentDiceBotSystem,
-            text: text,
-            diceRollResult: diceRollResult,
-            color: color,
-            tab: outputTab,
-            from: ownerKey,
-            actorKey: this.chatActorKey,
-            statusName: this.statusName,
-            target: this.chatTarget,
-            owner: this.chatActorKey
-          });
-        } else {
-          // -------------------
-          // プレイヤー発言
-          // -------------------
-          this.addChatLog({
-            name: this.getViewName(this.chatActorKey),
-            text: text,
-            color: color,
-            tab: outputTab,
-            from: ownerKey,
-            actorKey: this.chatActorKey,
-            statusName: this.statusName,
-            target: this.chatTarget,
-            owner: this.chatActorKey
-          });
-          if (isDiceRoll) {
-            // -------------------
-            // ダイスロール結果
-            // -------------------
-            this.addChatLog({
-              name: this.currentDiceBotSystem,
-              text: diceRollResult,
-              color: color,
-              tab: outputTab,
-              from: ownerKey,
-              actorKey: this.chatActorKey,
-              statusName: this.statusName,
-              target: this.chatTarget,
-              owner: this.chatActorKey
-            });
-          }
-        }
-      })
-      .catch((err: any) => {
-        window.console.error(err);
-      });
+    this.sendChatLog({
+      actorKey: this.chatActorKey,
+      text,
+      outputTab: this.outputTab,
+      statusName: this.statusName,
+      chatTarget: this.chatTarget,
+      currentDiceBotSystem: this.currentDiceBotSystem
+    });
   }
 
   /**
@@ -842,6 +917,38 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
   @Watch("roomSystem")
   private onChangeRoomSystem(roomSystem: string) {
     this.currentDiceBotSystem = roomSystem;
+    const path = `/static/conf/system/${roomSystem}/customDiceBot.yaml`;
+    this.loadYaml(path)
+      .then((customDiceBotList: any[]) => {
+        // 読み込めた場合
+        customDiceBotList.forEach((customDiceBot: any, index: number) => {
+          customDiceBot.key = `customDiceBotRoomSys-${index}`;
+          customDiceBot.diceBotSystem = roomSystem;
+          const tableContents: any = customDiceBot!.tableContents;
+          const tableContentsArr = [];
+          for (const prop in tableContents) {
+            if (!tableContents.hasOwnProperty(prop)) continue;
+            tableContentsArr.push(`${prop}:${tableContents[prop]}`);
+          }
+          customDiceBot.tableContents = tableContentsArr.join("\n");
+        });
+        this.setProperty({
+          property: "public.customDiceBot.roomSysList",
+          value: customDiceBotList,
+          isNotice: true,
+          logOff: true
+        });
+      })
+      .catch((err: any) => {
+        // window.console.log(err);
+        // 初期化
+        this.setProperty({
+          property: "public.customDiceBot.roomSysList",
+          value: [],
+          isNotice: true,
+          logOff: true
+        });
+      });
   }
 
   @Watch("currentDiceBotSystem")
@@ -909,7 +1016,9 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
     if (this.chatOptionSelectMode === "tab") {
       const list = this.chatTabs.map((tab: any) => ({ key: tab.name }));
       list.unshift({ key: null });
-      index = list.findIndex((target: any) => target.key === this.activeTab);
+      index = list.findIndex(
+        (target: any) => target.key === this.activeChatTab
+      );
     }
     if (index === -1) return -1;
     return Math.floor(index / this.chatOptionPagingSize) + 1;
@@ -943,65 +1052,28 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
     const endIndex = Math.min(pageNum * this.chatOptionPagingSize, list.length);
     return list.splice(startIndex, endIndex - startIndex);
   }
+
+  private get isTargetTabVertical() {
+    return this.$store.state.private.display.settingChatTargetTabWindow
+      .isTabVertical;
+  }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+@import "../common";
+
 .container {
   width: 100%;
   height: 100%;
   display: flex;
-  display: -webkit-box;
-  display: -ms-flexbox;
   flex-direction: column;
   position: relative;
   overflow: visible;
 }
 
-.tabs {
-  display: flex;
-  padding-left: 1em;
-  width: 100%;
-  box-sizing: border-box;
-  z-index: 10;
-  margin-bottom: -1px;
-}
-
-.tab {
-  position: relative;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(rgba(240, 240, 240, 1), rgba(0, 0, 0, 0.2));
-  padding: 0 0.7em;
-  height: 2em;
-  box-sizing: border-box;
-  border: 1px solid gray;
-  border-bottom: none;
-  border-radius: 5px 5px 0 0;
-  margin-right: -1px;
-  z-index: 10;
-  white-space: nowrap;
-  outline: none;
-
-  &.addButton {
-    cursor: pointer;
-  }
-  &.unRead {
-    background-color: yellow;
-  }
-
-  &:hover {
-    border-color: #0092ed;
-    z-index: 100;
-  }
-
-  &.addButton:active,
-  &.active {
-    background: white none;
-  }
+.tabs.group {
+  margin-left: 0.5em;
 }
 
 #chatLog {
@@ -1019,7 +1091,7 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
   /*font-size: 13px;*/
   min-height: 70px;
   position: relative;
-  z-index: 0;
+  z-index: 10;
   white-space: normal;
   word-break: break-all;
 }
@@ -1052,15 +1124,15 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
     text-align: center;
   }
 
-  > * {
+  > *:not(.tabs) {
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: flex-end;
+    align-items: center;
     height: 42px;
     min-height: 42px;
   }
 
-  > div {
+  > div:not(.tabs) {
     flex-direction: column;
 
     &:not(.textAreaContainer) {
@@ -1076,17 +1148,13 @@ export default class ChatWindow extends Mixins<WindowMixin>(WindowMixin) {
   display: flex;
 }
 
-.sendLine > div > *:not(.chatOptionSelector) {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .chatInputArea {
   flex: 1;
   display: flex;
   width: 100%;
   font-size: 13px;
+  position: relative;
+  z-index: 10;
 }
 
 .chatOption {
@@ -1275,6 +1343,6 @@ i.icon-target {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding-right: 1em;
+  padding-right: 3em;
 }
 </style>

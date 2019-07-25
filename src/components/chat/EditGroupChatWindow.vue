@@ -1,52 +1,73 @@
 <template>
-  <window-frame titleText="グループチャット編集画面" display-property="private.display.editGroupChatWindow" align="center" :fixSize="`${windowSize.w}, ${windowSize.h}`" @open="initWindow" @reset="initWindow">
+  <window-frame
+    titleText="グループチャット編集画面"
+    display-property="private.display.editGroupChatWindow"
+    align="center"
+    :fixSize="`${windowSize.w}, ${windowSize.h}`"
+    @open="initWindow"
+    @reset="initWindow"
+  >
     <div class="contents" @contextmenu.prevent>
       <div class="scrollArea">
         <div>
-          <label>秘匿チャット<input type="checkbox" v-model="isSecret"></label>
-          <label>名前<input type="text" v-model="name"></label>
-          <label>出力先のタブ<ctrl-select v-model="targetTab">
-            <option :value="null">指定なし</option>
-            <option v-for="tabObj in chatTabs" :key="tabObj.name" :value="tabObj.key">{{tabObj.name}}</option>
-          </ctrl-select></label>
-          <label>全体<input type="checkbox" v-model="isAll"></label>
+          <label>
+            秘匿チャット<input type="checkbox" v-model="isSecret" />
+          </label>
+          <label>名前<input type="text" v-model="name"/></label>
+          <label>
+            出力先のタブ
+            <ctrl-select
+              v-model="targetTab"
+              :optionInfoList="targetTabOptionInfoList"
+              :maxWidth="11"
+            />
+          </label>
+          <label>全体<input type="checkbox" v-model="isAll"/></label>
         </div>
         <div class="tableContainer">
           <table @mousemove="event => moveDev(event)" @mouseup="moveDevEnd">
             <thead>
-            <tr>
-              <th :style="colStyle(0)">対象</th><divider :index="0" prop="editGroupChatWindow"/>
-              <th :style="colStyle(1)">名前</th>
-            </tr>
+              <tr>
+                <th :style="colStyle(0)">対象</th>
+                <divider :index="0" prop="editGroupChatWindow" />
+                <th :style="colStyle(1)">名前</th>
+              </tr>
             </thead>
             <tbody>
-            <!-- ===============================================================
-              コンテンツ
-            -->
-            <tr v-for="target in targetList"
+              <!-- ===============================================================
+                コンテンツ
+              -->
+              <tr
+                v-for="target in targetList"
                 :key="target.key"
                 @click="selectLine(target.key)"
-                :class="{isActive: selectLineKey === target.key}">
+                :class="{ isActive: selectLineKey === target.key }"
+              >
+                <!-- 対象チェック -->
+                <td :style="colStyle(0)" class="target">
+                  <input
+                    type="checkbox"
+                    :checked="isContain(target.key)"
+                    @change="
+                      event =>
+                        changeTargetCheck(target.key, event.target.checked)
+                    "
+                    @click.stop
+                    :disabled="isAll"
+                  />
+                </td>
+                <divider :index="0" prop="editGroupChatWindow" />
 
-              <!-- 対象チェック -->
-              <td :style="colStyle(0)" class="target">
-                <input
-                  type="checkbox"
-                  :checked="isContain(target.key)"
-                  @change="event => changeTargetCheck(target.key, event.target.checked)"
-                  @click.stop
-                  :disabled="isAll"
-                />
-              </td>
-              <divider :index="0" prop="editGroupChatWindow"/>
-
-              <!-- 名前 -->
-              <td :style="colStyle(1)" class="name" :class="target.kind">{{getViewName(target.key)}}</td>
-            </tr>
-            <tr class="space">
-              <td :style="colStyle(0)"></td><divider :index="0" prop="editGroupChatWindow"/>
-              <td :style="colStyle(1)"></td>
-            </tr>
+                <!-- 名前 -->
+                <td :style="colStyle(1)" class="name" :class="target.kind">
+                  {{ getViewName(target.key) }}
+                </td>
+              </tr>
+              <tr class="space">
+                <td :style="colStyle(0)"></td>
+                <divider :index="0" prop="editGroupChatWindow" />
+                <td :style="colStyle(1)"></td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -95,7 +116,7 @@ export default class EditGroupChatWindow extends Mixins<WindowMixin>(
 
   private isSecret: boolean = false;
   private name: string = "";
-  private targetTab: string | null = null;
+  private targetTab: string = "";
   private isAll: boolean = false;
   private group: any[] = [];
 
@@ -105,14 +126,6 @@ export default class EditGroupChatWindow extends Mixins<WindowMixin>(
     this.targetTab = this.storeObj.targetTab;
     this.isAll = this.storeObj.isAll;
     this.group = this.storeObj.group.concat();
-    // window.console.log(
-    //   "!!!!initWindow",
-    //   this.isSecret,
-    //   this.name,
-    //   this.targetTab,
-    //   this.isAll,
-    //   this.group
-    // );
   }
 
   private commit() {
@@ -315,10 +328,25 @@ export default class EditGroupChatWindow extends Mixins<WindowMixin>(
     });
     return result;
   }
+
+  private get targetTabOptionInfoList(): any[] {
+    const resultList: any[] = this.chatTabs.map((tabObj: any) => ({
+      key: tabObj.name,
+      value: tabObj.key,
+      text: tabObj.name,
+      disabled: false
+    }));
+    resultList.unshift({
+      key: "0",
+      value: "",
+      text: "指定なし",
+      disabled: false
+    });
+    return resultList;
+  }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .contents {
   position: absolute;
@@ -337,11 +365,12 @@ export default class EditGroupChatWindow extends Mixins<WindowMixin>(
 .buttonArea {
   display: flex;
   justify-content: center;
-  align-content: start;
+  align-content: flex-start;
 }
 
 label {
   display: flex;
+  align-items: center;
   margin-top: 5px;
 
   input[type="text"] {

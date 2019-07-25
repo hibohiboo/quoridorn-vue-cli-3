@@ -1,67 +1,81 @@
-  <template>
+<template>
   <div id="app2" @wheel.passive="onWheel">
-    <game-table ref="gameTable"/>
+    <game-table ref="gameTable" />
     <div id="YoutubePlayerContainer">
       <div class="unUse"><div id="YoutubePlayer001"></div></div>
       <div class="unUse"><div id="YoutubePlayer002"></div></div>
       <div class="unUse"><div id="YoutubePlayer003"></div></div>
       <div class="unUse"><div id="YoutubePlayer004"></div></div>
     </div>
-    <modal-screen/>
-    <loading-screen/>
-    <loading/>
-    <chat-window/>
-    <Menu/>
-    <add-map-mask-window/>
-    <edit-map-mask-window/>
-    <map-mask-context/>
-    <un-support-window/>
-    <game-table-context/>
-    <dev-log-window/>
-    <function-list-window/>
-    <public-memo-window/>
-    <add-character-setting-window/>
-    <add-character-window/>
-    <character-context/>
-    <drop-image-window/>
-    <room-info-window/>
-    <drop-zip-window/>
-    <add-chit-window/>
-    <edit-chit-window/>
-    <chit-context/>
-    <edit-map-window/>
-    <edit-character-window/>
-    <setting-b-g-m-window/>
-    <jukebox-window/>
-    <edit-b-g-m-window/>
-    <add-b-g-m-window/>
-    <setting-chat-tab-window/>
-    <setting-chat-font-window/>
-    <card-context/>
-    <welcome-window/>
-    <version-window/>
-    <setting-chat-target-tab-window/>
-    <player-box-window/>
-    <edit-group-chat-window/>
-    <deck/>
-    <input-player-info-window/>
-    <secret-dice-window/>
-    <stand-image-setting-window/>
-    <image-selector-window/>
-    <initiative-window/>
-    <initiative-setting-window/>
-    <counter-remocon-window/>
-    <counter-remocon-editor-window/>
-    <counter-remocon-context/>
-    <image-view-window/>
+    <modal-screen />
+    <loading-screen />
+    <loading />
+    <chat-window />
+    <Menu />
+    <add-map-mask-window />
+    <edit-map-mask-window />
+    <map-mask-context />
+    <un-support-window />
+    <game-table-context />
+    <dev-log-window />
+    <public-memo-window />
+    <add-character-setting-window />
+    <add-character-window />
+    <character-context />
+    <drop-image-window />
+    <room-info-window />
+    <drop-zip-window />
+    <add-chit-window />
+    <edit-chit-window />
+    <chit-context />
+    <edit-map-window />
+    <edit-character-window />
+    <setting-b-g-m-window />
+    <jukebox-window />
+    <edit-b-g-m-window />
+    <add-b-g-m-window />
+    <setting-chat-tab-window />
+    <setting-chat-font-window />
+    <card-context />
+    <welcome-window />
+    <version-window />
+    <setting-chat-target-tab-window />
+    <player-box-window />
+    <edit-group-chat-window />
+    <deck />
+    <input-player-info-window />
+    <secret-dice-window />
+    <stand-image-setting-window />
+    <image-selector-window />
+    <initiative-window />
+    <initiative-setting-window />
+    <counter-remocon-window />
+    <counter-remocon-editor-window />
+    <counter-remocon-context />
+    <image-view-window />
     <template v-for="(publicMemoObj, index) in publicMemo.list">
-      <public-memo-tile :key="`${publicMemoObj.key}`" :publicMemoObj="publicMemoObj" :index="index"/>
-      <public-memo-fukidashi :key="`${publicMemoObj.key}-fukidashi`" :publicMemoObj="publicMemoObj" :index="index"/>
+      <public-memo-tile
+        :key="`${publicMemoObj.key}`"
+        :publicMemoObj="publicMemoObj"
+        :index="index"
+      />
+      <public-memo-fukidashi
+        :key="`${publicMemoObj.key}-fukidashi`"
+        :publicMemoObj="publicMemoObj"
+        :index="index"
+      />
     </template>
-    <public-memo-context/>
-    <add-dice-symbol-window/>
-    <dice-symbol-context/>
-    <file-uploader-window/>
+    <public-memo-context />
+    <add-dice-symbol-window />
+    <dice-symbol-context />
+    <file-uploader-window />
+    <custom-dice-bot-table-window />
+    <edit-custom-dice-bot-table-window />
+    <dice-bot-message />
+    <chat-palette-setting-window />
+    <select-new-owner-window />
+    <edit-chat-palette-window />
+    <import-chat-palette-window />
   </div>
 </template>
 
@@ -77,7 +91,6 @@ import MapMaskContext from "../components/map/mapMask/MapMaskContext.vue";
 import UnSupportWindow from "../components/UnSupportWindow.vue";
 import GameTableContext from "../components/map/GameTableContext.vue";
 import DevLogWindow from "../components/simple/DevLogWindow.vue";
-import FunctionListWindow from "../components/simple/FunctionListWindow.vue";
 import PublicMemoWindow from "../components/public-memo/PublicMemoWindow.vue";
 import AddCharacterSettingWindow from "../components/map/character/AddCharacterSettingWindow.vue";
 import AddCharacterWindow from "../components/map/character/AddCharacterWindow.vue";
@@ -124,6 +137,13 @@ import PublicMemoContext from "@/components/public-memo/PublicMemoContext.vue";
 import AddDiceSymbolWindow from "@/components/map/diceSymbol/AddDiceSymbolWindow.vue";
 import DiceSymbolContext from "@/components/map/diceSymbol/DiceSymbolContext.vue";
 import FileUploaderWindow from "@/components/simple/FileUploaderWindow.vue";
+import CustomDiceBotTableWindow from "@/components/custom-dice-bot/CustomDiceBotTableWindow.vue";
+import EditCustomDiceBotTableWindow from "@/components/custom-dice-bot/EditCustomDiceBotTableWindow.vue";
+import DiceBotMessage from "@/components/chat/DiceBotMessage.vue";
+import ChatPaletteSettingWindow from "@/components/chat-palette/ChatPaletteSettingWindow.vue";
+import SelectNewOwnerWindow from "@/components/map/character/SelectNewOwnerWindow.vue";
+import EditChatPaletteWindow from "@/components/chat-palette/EditChatPaletteWindow.vue";
+import ImportChatPaletteWindow from "@/components/chat-palette/ImportChatPaletteWindow.vue";
 
 @Component({
   components: {
@@ -137,7 +157,6 @@ import FileUploaderWindow from "@/components/simple/FileUploaderWindow.vue";
     UnSupportWindow,
     GameTableContext,
     DevLogWindow,
-    FunctionListWindow,
     PublicMemoWindow,
     AddCharacterSettingWindow,
     AddCharacterWindow,
@@ -180,7 +199,14 @@ import FileUploaderWindow from "@/components/simple/FileUploaderWindow.vue";
     PublicMemoFukidashi,
     PublicMemoContext,
     AddDiceSymbolWindow,
-    FileUploaderWindow
+    FileUploaderWindow,
+    CustomDiceBotTableWindow,
+    EditCustomDiceBotTableWindow,
+    DiceBotMessage,
+    ChatPaletteSettingWindow,
+    SelectNewOwnerWindow,
+    EditChatPaletteWindow,
+    ImportChatPaletteWindow
   }
 })
 export default class App2 extends Vue {

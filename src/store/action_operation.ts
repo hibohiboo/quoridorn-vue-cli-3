@@ -17,43 +17,255 @@ Vue.use(Vuex);
  */
 export default {
   actions: {
-    /** ========================================================================
-     * 普通発言でチャットログを追加する
-     */
-    addSimpleChatLog: (
+    sendChatLog: (
       { dispatch, rootGetters }: { dispatch: Function; rootGetters: any },
-      {
-        actorKey = rootGetters.chatActorKey,
-        text,
-        tab = rootGetters.activeTab,
-        statusName = "◆",
-        target
-      }: {
-        actorKey: string;
-        text: string;
-        tab: string;
-        statusName: string;
-        target: string | undefined;
-      }
+      payload: any
     ) => {
-      const usePayload = {
-        name: rootGetters.getViewName(actorKey),
-        text,
-        color: rootGetters.getChatColor(actorKey),
-        tab,
-        from: rootGetters.getOwnerKey(actorKey),
-        actorKey,
-        statusName,
-        target,
-        owner: actorKey
-      };
-      dispatch("addChatLog", usePayload);
-    },
+      const actorKey: string = payload.actorKey || rootGetters.chatActorKey;
+      const text: string = payload.text;
+      const outputTab: string = payload.outputTab || rootGetters.activeChatTab;
+      const statusName: string = payload.statusName || "◆";
+      const chatTarget: string = payload.chatTarget || "groupTargetTab-0";
+      const currentDiceBotSystem: string =
+        payload.currentDiceBotSystem || "DiceBot";
 
+      // -------------------
+      // ダイスBot処理
+      // -------------------
+      const outputNormalChat = (commandStr: string) => {
+        if (!/[@><+-/*=0-9a-zA-Z()"?^$]+/.test(commandStr)) {
+          // -------------------
+          // プレイヤー発言
+          // -------------------
+          dispatch("addChatLog", {
+            name: rootGetters.getViewName(actorKey),
+            text,
+            // color,
+            tab: outputTab,
+            actorKey: actorKey,
+            statusName,
+            target: chatTarget,
+            owner: actorKey
+          });
+          return;
+        }
+        dispatch("sendBcdiceServer", {
+          system: currentDiceBotSystem,
+          command: commandStr
+        })
+          .then((json: any) => {
+            let isDiceRoll: boolean = false;
+            let isSecretDice: boolean = false;
+            let diceRollResult: string | null = null;
+            let dices: any = null;
+
+            if (json.ok) {
+              // bcdiceとして結果が取れた
+              const resultStr: string = json.result;
+              isSecretDice = json.secret;
+              dices = json.dices;
+
+              window.console.log(json);
+
+              diceRollResult = resultStr
+                .replace(/(^: )/g, "")
+                .replace(/＞/g, "→");
+              isDiceRoll = true;
+            } else {
+              // bcdiceとして結果は取れなかった
+            }
+
+            dispatch("setProperty", {
+              property: `public.chat.diceBotMessage`,
+              value: {
+                // message: "",
+                isView: false
+              },
+              isNotice: true,
+              logOff: true
+            });
+            if (isDiceRoll && isSecretDice) {
+              // -------------------
+              // シークレットダイス
+              // -------------------
+              dispatch("addChatLog", {
+                name: rootGetters.getViewName(actorKey),
+                text: `シークレットダイス`,
+                // color: color,
+                tab: outputTab,
+                actorKey: actorKey,
+                statusName: statusName,
+                target: chatTarget,
+                owner: actorKey
+              });
+
+              // 隠しダイスロール結果画面に反映
+              dispatch("addSecretDice", {
+                name: rootGetters.getViewName(actorKey),
+                diceBot: currentDiceBotSystem,
+                text,
+                diceRollResult: diceRollResult,
+                // color: color,
+                tab: outputTab,
+                actorKey: actorKey,
+                statusName: statusName,
+                target: chatTarget,
+                owner: actorKey,
+                dices
+              });
+            } else {
+              // -------------------
+              // プレイヤー発言
+              // -------------------
+              dispatch("addChatLog", {
+                name: rootGetters.getViewName(actorKey),
+                text,
+                // color,
+                tab: outputTab,
+                actorKey: actorKey,
+                statusName: statusName,
+                target: chatTarget,
+                owner: actorKey
+              });
+              if (isDiceRoll) {
+                // -------------------
+                // ダイスロール結果
+                // -------------------
+                dispatch("addChatLog", {
+                  name: currentDiceBotSystem,
+                  text: diceRollResult,
+                  // color,
+                  tab: outputTab,
+                  actorKey: actorKey,
+                  statusName: statusName,
+                  target: chatTarget,
+                  owner: actorKey,
+                  dices,
+                  isDiceBot: true
+                });
+              }
+            }
+          })
+          .catch((err: any) => {
+            window.console.error(err);
+          });
+      };
+
+      // -------------------
+      // 独自ダイスBot処理
+      // -------------------
+      const commandStr = text
+        .split(new RegExp("\\s+"))[0]
+        .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s: string) =>
+          String.fromCharCode(s.charCodeAt(0) - 65248)
+        )
+        .toLowerCase();
+      const customDiceBotObj: any = rootGetters.customDiceBotList.filter(
+        (customDiceBotObj: any) =>
+          customDiceBotObj.commandName.toLowerCase() === commandStr
+      )[0];
+      const customDiceBotRoomSysObj: any = rootGetters.customDiceBotRoomSysList.filter(
+        (customDiceBotObj: any) =>
+          customDiceBotObj.commandName.toLowerCase() === commandStr
+      )[0];
+      const useCustomDiceBotObj = customDiceBotObj || customDiceBotRoomSysObj;
+      if (!useCustomDiceBotObj) {
+        // 独自ダイスボットが見つからなかったので通常のチャット処理
+        outputNormalChat(commandStr);
+      } else {
+        // 独自ダイスボットが見つかった
+        const diceRoll = useCustomDiceBotObj.diceRoll;
+        const tableTitle = useCustomDiceBotObj.tableTitle;
+        const diceBotSystem = useCustomDiceBotObj.diceBotSystem;
+        const tableContents = useCustomDiceBotObj.tableContents;
+        const customTableInfoList: any[] = tableContents
+          .split(/[\r\n]+/)
+          .map((lineStr: string) => {
+            const matchResult: any = lineStr.match(/^([^:：]+)[:：](.+)$/);
+            if (!matchResult) return null;
+            const key: string = matchResult[1];
+            const value: string = matchResult[2];
+            return { key, value };
+          })
+          .filter((info: any) => info);
+
+        dispatch("sendBcdiceServer", {
+          system: diceBotSystem,
+          command: diceRoll
+        }).then((json: any) => {
+          let diceRollResult: string | null = null;
+          let diceResultStr: string | null = null;
+          let dices: any[] | null = null;
+          if (json.ok) {
+            // bcdiceとして結果が取れた
+            const resultStr: string = json.result;
+            dices = json.dices;
+            diceRollResult = resultStr.replace(/^.*＞ */, "");
+            let sum = 0;
+            diceResultStr = dices!
+              .map((dice: any) => {
+                sum += dice.value;
+                return dice.value;
+              })
+              .join(",");
+            diceResultStr = `(${sum}[${diceResultStr}])`;
+          }
+
+          const customDiceBotResult = customTableInfoList.filter(
+            customTableInfo => customTableInfo.key === diceRollResult
+          )[0];
+
+          const customDiceBotResultText: string = [
+            tableTitle,
+            diceResultStr,
+            " → ",
+            customDiceBotResult ? customDiceBotResult.value : "該当値なし"
+          ].join("");
+
+          dispatch("setProperty", {
+            property: `public.chat.diceBotMessage`,
+            value: {
+              message: customDiceBotResult
+                ? customDiceBotResult.value
+                : ["該当値なし", diceRollResult].join("\n"),
+              isView: true
+            },
+            isNotice: true,
+            logOff: true
+          });
+
+          dispatch("addChatLog", {
+            name: rootGetters.getViewName(actorKey),
+            text,
+            // color,
+            tab: outputTab,
+            actorKey: actorKey,
+            statusName: statusName,
+            target: chatTarget,
+            owner: actorKey
+          });
+          dispatch("addChatLog", {
+            name: diceBotSystem,
+            text: customDiceBotResultText,
+            // color,
+            tab: outputTab,
+            actorKey: actorKey,
+            statusName: statusName,
+            target: chatTarget,
+            owner: actorKey,
+            dices,
+            isDiceBot: true
+          });
+        });
+      }
+    },
     /** ========================================================================
      * チャットログを追加する
      */
-    addChatLog: ({ dispatch }: { dispatch: Function }, payload: any) => {
+    addChatLog: (
+      { dispatch, rootGetters }: { dispatch: Function; rootGetters: any },
+      payload: any
+    ) => {
       dispatch("sendNoticeOperation", {
         value: payload,
         method: "doAddChatLog"
@@ -70,16 +282,22 @@ export default {
       let text = payload.text;
       if (!text.startsWith("@")) {
         const activeChatTab = rootGetters.activeChatTab;
-        const name = payload.name;
-        const color = payload.color;
-        const tab = payload.tab || activeChatTab.key;
-        const from = payload.from;
-        const actorKey = payload.actorKey;
-        const target = payload.target;
 
+        const actorKey = payload.actorKey || rootGetters.chatActorKey;
+        const name = payload.name || rootGetters.getViewName(actorKey);
+        const color = payload.color || rootGetters.getChatColor(actorKey);
+        const tab = payload.tab || activeChatTab;
+        const from =
+          payload.from || rootGetters.getOwnerKey(rootGetters.chatActorKey);
+        const target = payload.target;
+        const isDiceBot: boolean = payload.isDiceBot || false;
+
+        /*
+         * 立ち絵の表示
+         */
         const actor: any = rootGetters.getObj(actorKey);
         if (actor) {
-          const statusName = payload.statusName;
+          const statusName = payload.statusName || "◆";
           const status: any = actor.statusList.filter(
             (status: any) => status.name === statusName
           )[0];
@@ -95,37 +313,49 @@ export default {
               const index: number = standImageList.findIndex(
                 (standImageObj: any) => standImageObj.actorKey === actorKey
               );
-              if (index < 0) {
-                standImageList.push(standImageObj);
-              } else {
-                standImageList.splice(index, 1, standImageObj);
-              }
+              if (index >= 0) standImageList.splice(index, 1);
+              standImageList.push(standImageObj);
             }
           }
         }
 
-        let viewHtml;
+        let useTargetText: string = "";
         if (target) {
           const targetName = rootGetters.getObj(target).name;
-          const useTargetText = targetName === "全体" ? "" : " > " + targetName;
-          viewHtml = `<span style="color: ${color};"><b>${name}${useTargetText}</b>：${text.replace(
-            /\r?\n/g,
-            "<br>"
-          )}</span>`;
-        } else {
-          viewHtml = `<span style="color: ${color};"><b>${name}</b>：${text.replace(
-            /\r?\n/g,
-            "<br>"
-          )}</span>`;
+          useTargetText = targetName === "全体" ? "" : " > " + targetName;
         }
+        const viewHtml = [
+          `<span style="color: ${color};`,
+          isDiceBot ? " background-color: #eee;" : "",
+          `"><b>`,
+          name + useTargetText,
+          "</b>：",
+          text.replace(/\r?\n/g, "<br />"),
+          "</span>"
+        ].join("");
+
+        // ダイスボットメッセージの表示判定
+        if (isDiceBot && !/^[^→]+→[ →0-9,[\]]+$/.test(text)) {
+          dispatch("setProperty", {
+            property: `public.chat.diceBotMessage`,
+            value: {
+              message: text.replace(/^[^→]+→ */, ""),
+              isView: true
+            },
+            isNotice: true,
+            logOff: true
+          });
+        }
+
         const logObj = {
           owner: payload.owner,
           target: target,
           from: from,
-          viewHtml: viewHtml
+          viewHtml: viewHtml,
+          isDiceBot: isDiceBot
         };
         // 未読カウントアップ
-        if (tab !== activeChatTab.key) {
+        if (tab !== activeChatTab) {
           const index = rootGetters.chatTabsOption.findIndex(
             (tabObj: any) => tabObj.key === tab
           );
@@ -192,6 +422,121 @@ export default {
         isNotice: false,
         logOff: true
       });
+    },
+
+    /** ========================================================================
+     * チャットタブ追加処理
+     */
+    addChatTab: (
+      { dispatch }: { dispatch: Function },
+      payload: any
+    ): string => {
+      return dispatch("sendNoticeOperation", {
+        value: payload,
+        method: "doAddChatTab"
+      });
+    },
+    doAddChatTab: (
+      { rootState }: { rootState: any },
+      {
+        name,
+        isActive = false,
+        isHover = false,
+        unRead = 0,
+        order = rootState.public.chat.tab.list.length
+      }: {
+        name: string | undefined;
+        isActive: boolean | undefined;
+        isHover: boolean | undefined;
+        unRead: number | undefined;
+        order: number;
+      }
+    ) => {
+      const key = `chatTab-${++rootState.public.chat.tab.maxKey}`;
+      const publicTab = {
+        key: key,
+        name: name
+      };
+      const privateTab = {
+        key: key,
+        isActive: isActive,
+        isHover: isHover,
+        unRead: unRead,
+        order: order
+      };
+      rootState.public.chat.tab.list.push(publicTab);
+      rootState.private.chat.tab.push(privateTab);
+      Vue.set(rootState.public.chat.logs, key, []);
+    },
+
+    /** ========================================================================
+     * チャットタブ更新処理
+     */
+    updateChatTab: (
+      { dispatch }: { dispatch: Function },
+      payload: any
+    ): string => {
+      return dispatch("sendNoticeOperation", {
+        value: payload,
+        method: "doUpdateChatTab"
+      });
+    },
+    doUpdateChatTab: (
+      { rootState }: { rootState: any },
+      {
+        key,
+        name = undefined,
+        isActive = undefined,
+        isHover = undefined,
+        unRead = undefined
+      }: {
+        key: string;
+        name: string | undefined;
+        isActive: boolean | undefined;
+        isHover: boolean | undefined;
+        unRead: number | undefined;
+      }
+    ) => {
+      const publicTabIndex = rootState.public.chat.tab.list.findIndex(
+        (tab: any) => tab.key === key
+      );
+      const publicTab = rootState.public.chat.tab.list[publicTabIndex];
+      const privateTabIndex = rootState.private.chat.tab.findIndex(
+        (tab: any) => tab.key === key
+      );
+      const privateTab = rootState.private.chat.tab[publicTabIndex];
+      if (name !== undefined) publicTab.name = name;
+      if (isActive !== undefined) privateTab.isActive = isActive;
+      if (isHover !== undefined) privateTab.isHover = isHover;
+      if (unRead !== undefined) privateTab.isActive = unRead;
+      rootState.public.chat.tab.list.splice(publicTabIndex, 1, publicTab);
+      rootState.private.chat.tab.splice(privateTabIndex, 1, privateTab);
+    },
+
+    /** ========================================================================
+     * チャットタブ削除処理
+     */
+    deleteChatTab: (
+      { dispatch }: { dispatch: Function },
+      payload: any
+    ): string => {
+      return dispatch("sendNoticeOperation", {
+        value: payload,
+        method: "doDeleteChatTab"
+      });
+    },
+    doDeleteChatTab: (
+      { rootState }: { rootState: any },
+      { key }: { key: string }
+    ) => {
+      const publicTabIndex = rootState.public.chat.tab.list.findIndex(
+        (tab: any) => tab.key === key
+      );
+      const privateTabIndex = rootState.private.chat.tab.findIndex(
+        (tab: any) => tab.key === key
+      );
+      rootState.public.chat.tab.list.splice(publicTabIndex, 1);
+      rootState.private.chat.tab.splice(privateTabIndex, 1);
     },
 
     /** ========================================================================
@@ -738,7 +1083,7 @@ export default {
         key: `groupTargetTab-${++rootGetters.groupTargetTab.maxKey}`,
         isSecret: false,
         name: "",
-        targetTab: null,
+        targetTab: "",
         isAll: false,
         group: [payload.ownerKey]
       });
@@ -819,7 +1164,7 @@ export default {
       }: { rootState: any; rootGetters: any; commit: Function },
       payload: any
     ) => {
-      const lastActiveTab = rootState.public.activeChatTab;
+      const lastActiveTab = rootGetters.activeChatTab;
       let tabsText = payload.tabsText.trim();
       // 秘匿チャット以外を削除
       rootGetters.chatTabs
@@ -835,7 +1180,7 @@ export default {
       let tabs = tabsText.replace(regExp, " ").split(" ");
       for (let tab of tabs) {
         let isActive = false;
-        if (lastActiveTab && lastActiveTab.name === tab) {
+        if (lastActiveTab && lastActiveTab === tab) {
           isActive = true;
         }
         let tabObj = {
@@ -889,33 +1234,35 @@ export default {
       rootState: any,
       rootGetters: any
     ) => {
-      return rootGetters.chatLogs[rootGetters.activeTab].filter((log: any) => {
-        if (log.from === rootGetters.playerKey) return true;
-        if (!log.target) return true;
-        if (log.target === "groupTargetTab-0") return true;
-        const kind = log.target.split("-")[0];
-        if (kind === "groupTargetTab") {
-          const target = getters.getObj(log.target);
-          if (!target.isSecret) return true;
-          if (target.isAll) return true;
-          const findIndex = target.group.findIndex((g: string) => {
-            const kind = g.split("-")[0];
-            if (kind === "player") {
-              if (g === rootGetters.playerKey) return true;
-            } else if (kind === "character") {
-              if (getters.getObj(g).owner === rootGetters.playerKey)
-                return true;
-            }
-            return false;
-          });
-          return findIndex > -1;
-        } else if (kind === "player") {
-          return log.target === rootGetters.playerKey;
-        } else {
-          const target = getters.getObj(log.target);
-          return target.owner === rootGetters.playerKey;
+      return rootGetters.chatLogs[rootGetters.activeChatTab].filter(
+        (log: any) => {
+          if (log.from === rootGetters.playerKey) return true;
+          if (!log.target) return true;
+          if (log.target === "groupTargetTab-0") return true;
+          const kind = log.target.split("-")[0];
+          if (kind === "groupTargetTab") {
+            const target = getters.getObj(log.target);
+            if (!target.isSecret) return true;
+            if (target.isAll) return true;
+            const findIndex = target.group.findIndex((g: string) => {
+              const kind = g.split("-")[0];
+              if (kind === "player") {
+                if (g === rootGetters.playerKey) return true;
+              } else if (kind === "character") {
+                if (getters.getObj(g).owner === rootGetters.playerKey)
+                  return true;
+              }
+              return false;
+            });
+            return findIndex > -1;
+          } else if (kind === "player") {
+            return log.target === rootGetters.playerKey;
+          } else {
+            const target = getters.getObj(log.target);
+            return target.owner === rootGetters.playerKey;
+          }
         }
-      });
+      );
     },
     groupTargetTabList: (
       state: any,

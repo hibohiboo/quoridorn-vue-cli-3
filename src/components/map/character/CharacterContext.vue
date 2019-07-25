@@ -1,15 +1,50 @@
 <template>
   <context-frame displayProperty="private.display.characterContext">
     <div class="item" @click.left.prevent="viewEditCharacter">変更</div>
-    <hr>
-    <div class="item" v-if="place !== 'field'" @click.left.prevent="moveToField">マップに移動</div>
-    <div class="item" v-if="place !== 'waiting'" @click.left.prevent="moveToWaitRoom">キャラクター待合室に移動</div>
-    <div class="item" v-if="place !== 'graveyard'" @click.left.prevent="moveToGraveyard">墓場に移動（削除）</div>
-    <hr>
-    <div class="item" @click.left.prevent="copyCharacter">複製</div>
-    <template v-if="characterContextObjKey !== null && getObj(characterContextObjKey).url">
-      <hr>
-      <div class="item" @click.left.prevent="openRefURL">データ参照先URLを開く</div>
+    <hr />
+    <div
+      class="item"
+      v-if="place !== 'field'"
+      @click.left.prevent="moveToField"
+    >
+      マップに移動
+    </div>
+    <div
+      class="item"
+      v-if="place !== 'waiting'"
+      @click.left.prevent="moveToWaitRoom"
+    >
+      キャラクター待合室に移動
+    </div>
+    <div
+      class="item"
+      v-if="place !== 'graveyard'"
+      @click.left.prevent="moveToGraveyard"
+    >
+      墓場に移動（削除）
+    </div>
+    <hr />
+    <div class="item" @click.left.prevent="copyCharacter">
+      複製
+    </div>
+    <template
+      v-if="
+        characterContextObjKey !== null && getObj(characterContextObjKey).url
+      "
+    >
+      <hr />
+      <div class="item" @click.left.prevent="openRefURL">
+        データ参照先URLを開く
+      </div>
+    </template>
+    <template v-if="isGameMaster">
+      <hr />
+      <div class="item" @click.left.prevent="getOwner">
+        オーナーになる
+      </div>
+      <div class="item" @click.left.prevent="giveOwner">
+        オーナーを渡す
+      </div>
     </template>
   </context-frame>
 </template>
@@ -35,8 +70,9 @@ export default class CharacterContext extends Mixins<WindowMixin>(WindowMixin) {
   @Getter("characterContextObjKey") private characterContextObjKey: any;
   @Getter("playerKey") private playerKey: any;
   @Getter("mapMaskIsLock") private mapMaskIsLock: any;
+  @Getter("isGameMaster") private isGameMaster: any;
 
-  viewEditCharacter(): void {
+  private viewEditCharacter(): void {
     this.setProperty({
       property: "private.display.editCharacterWindow.key",
       value: this.characterContextObjKey,
@@ -45,13 +81,13 @@ export default class CharacterContext extends Mixins<WindowMixin>(WindowMixin) {
     this.windowOpen("private.display.editCharacterWindow");
     this.windowClose("private.display.characterContext");
   }
-  moveToField(): void {
+  private moveToField(): void {
     this.moveTo("field");
   }
-  moveToWaitRoom(): void {
+  private moveToWaitRoom(): void {
     this.moveTo("waiting");
   }
-  moveToGraveyard(): void {
+  private moveToGraveyard(): void {
     this.moveTo("graveyard");
   }
   private moveTo(place: string): void {
@@ -62,21 +98,35 @@ export default class CharacterContext extends Mixins<WindowMixin>(WindowMixin) {
     });
     this.windowClose("private.display.characterContext");
   }
-  copyCharacter(): void {
+  private copyCharacter(): void {
     this.windowClose("private.display.characterContext");
     alert("未実装の機能です。");
   }
-  openRefURL(): void {
+  private openRefURL(): void {
     window.open(this.getObj(this.characterContextObjKey).url, "_blank");
     this.windowClose("private.display.characterContext");
   }
-  get place(): string {
+  private get place(): string {
     const character = this.getObj(this.characterContextObjKey);
     return character ? character.place : null;
   }
+
+  private getOwner() {
+    const character = this.getObj(this.characterContextObjKey);
+    this.changeListObj({
+      key: this.characterContextObjKey,
+      owner: this.playerKey,
+      isNotice: true
+    });
+  }
+  private giveOwner() {
+    this.setProperty({
+      property: "private.display.selectNewOwnerWindow.objKey",
+      value: this.characterContextObjKey,
+      logOff: true
+    }).then(() => {
+      this.windowOpen("private.display.selectNewOwnerWindow");
+    });
+  }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style>
-</style>

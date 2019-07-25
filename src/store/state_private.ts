@@ -68,7 +68,6 @@ export default {
       resourceWindow: { command: null, isDisplay: false, zIndex: 1 },
       chatPaletteWindow: { command: null, isDisplay: false, zIndex: 1 },
       counterRemoConWindow: { command: null, isDisplay: false, zIndex: 1 },
-      functionListWindow: { command: null, isDisplay: false, zIndex: 1 },
       addMapMaskWindow: { command: null, isDisplay: false, zIndex: 1 },
       editMapMaskWindow: {
         command: null,
@@ -82,7 +81,6 @@ export default {
       addCharacterWindow: {
         command: null,
         isDisplay: false,
-        doResetPosition: false,
         zIndex: 1,
         name: "",
         size: 1,
@@ -121,7 +119,6 @@ export default {
       settingBGMWindow: {
         command: null,
         isDisplay: false,
-        doResetPosition: false,
         zIndex: 1,
         // テーブル形式用データここから
         widthList: [30, 30, 30, 112, 53, 25, 30, 40],
@@ -152,6 +149,7 @@ export default {
         isDisplay: false,
         zIndex: 1,
         windowSize: { w: 537, h: 300 },
+        isTabVertical: false,
         // テーブル形式用データここから
         widthList: [25, 80, 80, 253, 58], // 500
         selectLineKey: null,
@@ -298,7 +296,51 @@ export default {
         y: 0,
         objKey: null
       },
-      fileUploaderWindow: { command: null, isDisplay: false, zIndex: 1 }
+      fileUploaderWindow: { command: null, isDisplay: false, zIndex: 1 },
+      customDiceBotTableWindow: {
+        command: null,
+        isDisplay: false,
+        zIndex: 1,
+        // テーブル形式用データここから
+        widthList: [100, 100, 213],
+        selectLineKey: null,
+        hoverDevIndex: -1,
+        movingIndex: -1,
+        movedIndex: -1,
+        startX: -1,
+        startLeftWidth: -1,
+        startRightWidth: -1
+        // テーブル形式用データここまで
+      },
+      editCustomDiceBotTableWindow: {
+        command: null,
+        isDisplay: false,
+        zIndex: 1,
+        objKey: null
+      },
+      chatPaletteSettingWindow: {
+        command: null,
+        isDisplay: false,
+        zIndex: 1
+      },
+      selectNewOwnerWindow: {
+        command: null,
+        isDisplay: false,
+        zIndex: 1,
+        objKey: null
+      },
+      editChatPaletteWindow: {
+        command: null,
+        isDisplay: false,
+        zIndex: 1,
+        objKey: null
+      },
+      importChatPaletteWindow: {
+        command: null,
+        isDisplay: false,
+        zIndex: 1,
+        objKey: null
+      }
     }
   } /* end of state */,
   actions: {
@@ -489,6 +531,15 @@ export default {
     counterRemoconEditorKey: (state: any) =>
       state.display.counterRemoconEditorWindow.objKey,
     remoconContextKey: (state: any) =>
-      state.display.counterRemoconContext.remoconKey
+      state.display.counterRemoconContext.remoconKey,
+    isGameMaster: (
+      state: any,
+      getters: any,
+      rootState: any,
+      rootGetters: any
+    ) => {
+      const self = rootGetters.getObj(state.self.playerKey);
+      return self ? self.type === "GM" : false;
+    }
   }
 };

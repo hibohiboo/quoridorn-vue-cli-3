@@ -71,21 +71,28 @@ export default {
 
     /** マップ */
     map: {
-      imageTag: "imgTag-1",
-      imageKey: "image-0",
-      isReverse: false,
-      margin: {
-        gridSize: 5,
-        gridColor: "#FFFFFF",
-        maskColor: "#145014",
-        maskAlpha: 0.1,
-        isUseGridColor: true,
-        isUseImage: false,
-        borderWidth: 10
-      },
-      grid: { totalColumn: 20, totalRow: 15, size: 48, color: "#000000" },
-      background: "#92A8B3",
-      isEditing: null
+      list: [
+        {
+          key: `map-0`,
+          imageTag: "imgTag-1",
+          imageKey: "image-0",
+          isReverse: false,
+          margin: {
+            gridSize: 5,
+            gridColor: "#FFFFFF",
+            maskColor: "#145014",
+            maskAlpha: 0.1,
+            isUseGridColor: true,
+            isUseImage: false,
+            borderWidth: 10
+          },
+          grid: { totalColumn: 20, totalRow: 15, size: 48, color: "#000000" },
+          background: "#92A8B3"
+        }
+      ],
+      isEditing: null,
+      maxKey: 0,
+      current: "map-0"
     },
 
     /** 部屋情報 */
@@ -105,6 +112,9 @@ export default {
 
     /** ダイスシンボル */
     diceSymbol: { list: [], maxKey: -1 },
+
+    /** カスタムダイスボット */
+    customDiceBot: { list: [], maxKey: -1, roomSysList: [] },
 
     /** キャラクタープロパティ */
     initiative: {
@@ -136,7 +146,8 @@ export default {
       /** チャットのタブ */
       tab: {
         list: [{ key: "chatTab-0", name: "メイン" }],
-        maxKey: 0
+        maxKey: 0,
+        isVertical: false
       },
       /** グループチャットのタブ */
       groupTargetTab: {
@@ -165,7 +176,12 @@ export default {
       },
 
       /** 入力中のルームメイトのpeerId一覧 */
-      inputting: {}
+      inputting: {},
+
+      diceBotMessage: {
+        isView: false,
+        message: ""
+      }
     },
 
     /** 共有メモ */
@@ -233,10 +249,13 @@ export default {
         // window.console.log(`Add player key:${playerKey} name:${name}`);
         rootGetters.playerList.push({
           key: playerKey,
-          name: name,
-          password: password,
-          fontColor: fontColor,
-          type: type,
+          name,
+          password,
+          fontColor,
+          type,
+          chatPalette: {
+            list: []
+          },
           statusList: [
             {
               name: "◆",
@@ -428,14 +447,18 @@ export default {
      */
     isFitGrid: (state: any) => state.setting.isFitGrid,
 
+    currentMap: (state: any) =>
+      state.map.list.filter((map: any) => map.key === state.map.current)[0],
+
     /**
      * 現在の背景画像
      * @param state
+     * @param getter
      * @returns {*}
      */
-    getBackgroundImage: (state: any) => {
+    getBackgroundImage: (state: any, getter: any) => {
       const imageObj = state.image.list.filter(
-        (image: any) => image.key === state.map.imageKey
+        (image: any) => image.key === getter.currentMap.imageKey
       )[0];
       return imageObj ? imageObj.data : null;
     },
@@ -527,16 +550,24 @@ export default {
     chatLogs: (state: any): any[] => state.chat.logs,
     playerList: (state: any): any[] => state.player.list,
     inputting: (state: any): any => state.chat.inputting,
-    marginGridColor: (state: any): string => state.map.margin.gridColor,
-    marginMaskColor: (state: any): string => state.map.margin.maskColor,
-    marginMaskAlpha: (state: any): number => state.map.margin.maskAlpha,
-    isUseGridColor: (state: any): boolean => state.map.margin.isUseGridColor,
-    isUseImage: (state: any): boolean => state.map.margin.isUseImage,
-    columns: (state: any): number => state.map.grid.totalColumn,
-    rows: (state: any): number => state.map.grid.totalRow,
-    gridSize: (state: any): number => state.map.grid.size,
-    borderWidth: (state: any): number => state.map.margin.borderWidth,
-    marginGridSize: (state: any): number => state.map.margin.gridSize,
+    marginGridColor: (state: any, getter: any): string =>
+      getter.currentMap.margin.gridColor,
+    marginMaskColor: (state: any, getter: any): string =>
+      getter.currentMap.margin.maskColor,
+    marginMaskAlpha: (state: any, getter: any): number =>
+      getter.currentMap.margin.maskAlpha,
+    isUseGridColor: (state: any, getter: any): boolean =>
+      getter.currentMap.margin.isUseGridColor,
+    isUseImage: (state: any, getter: any): boolean =>
+      getter.currentMap.margin.isUseImage,
+    columns: (state: any, getter: any): number =>
+      getter.currentMap.grid.totalColumn,
+    rows: (state: any, getter: any): number => getter.currentMap.grid.totalRow,
+    gridSize: (state: any, getter: any): number => getter.currentMap.grid.size,
+    borderWidth: (state: any, getter: any): number =>
+      getter.currentMap.margin.borderWidth,
+    marginGridSize: (state: any, getter: any): number =>
+      getter.currentMap.margin.gridSize,
     roomName: (state: any): string => state.room.name,
     roomPassword: (state: any): string => state.room.password,
     members: (state: any): any[] => state.room.members,
@@ -583,12 +614,15 @@ export default {
       params.push(`system=${getters.roomSystem}`);
       return `${baseUrl}?${params.join("&")}`;
     },
-    isMapEditing: (state: any): boolean => state.map.isEditing,
+    isMapEditing: (state: any, getter: any): boolean =>
+      getter.currentMap.isEditing,
     groupTargetTab: (state: any): any => state.chat.groupTargetTab,
     isDrawGridLine: (state: any): boolean => state.setting.gridLine,
     isDrawGridId: (state: any): boolean => state.setting.gridId,
-    gridColor: (state: any): string => state.map.grid.color,
-    isReverse: (state: any): boolean => state.map.isReverse,
+    gridColor: (state: any, getter: any): string =>
+      getter.currentMap.grid.color,
+    isReverse: (state: any, getter: any): boolean =>
+      getter.currentMap.isReverse,
     canvasSize(state: any, getter: any) {
       return {
         w: getter.columns * getter.gridSize,
@@ -632,7 +666,7 @@ export default {
     bgmList: (state: any) => state.bgm.list,
     imageTagList: (state: any) => state.image.tags.list,
     imageList: (state: any) => state.image.list,
-    backgroundColor: (state: any) => state.map.background,
+    backgroundColor: (state: any, getter: any) => getter.currentMap.background,
     round: (state: any) => state.initiative.round,
     roundPlayerKey: (state: any) => state.initiative.roundPlayerKey,
     propertyList: (state: any) => state.initiative.propertyList,
@@ -671,6 +705,11 @@ export default {
             )
             .filter((imageObj: any) => imageObj.key === tagKey)[0]
       );
-    }
+    },
+    customDiceBotList: (state: any) => state.customDiceBot.list,
+    customDiceBotRoomSysList: (state: any) => state.customDiceBot.roomSysList,
+    diceBotMessageText: (state: any) => state.chat.diceBotMessage.message,
+    diceBotMessageView: (state: any) => state.chat.diceBotMessage.isView,
+    isChatTabVertical: (state: any) => state.chat.tab.isVertical
   } /* end of getters */
 };

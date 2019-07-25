@@ -11,13 +11,13 @@
   >
     <!-- コンテンツ -->
     <div class="_contents" :style="{ fontSize: fontSize + 'px' }" @wheel.stop>
-      <slot></slot>
+      <slot />
     </div>
 
     <!-- タイトルバー -->
     <div
       class="window-title"
-      :class="{fix : isFix}"
+      :class="{ fix: isFix }"
       @mousedown.left.prevent="event => move(event, true)"
       @mouseup.left.prevent="event => move(event, false)"
       @touchstart.prevent="event => move(event, true, true)"
@@ -25,19 +25,31 @@
       @touchcancel.prevent="event => move(event, false, true)"
       @contextmenu.prevent
     >
-
       <!-- タイトル文言 -->
       <div>
-        <span>{{titleText}}</span>
-        <span class="message" v-if="message">{{message}}</span>
+        <span>{{ titleText }}</span>
+        <span class="message" v-if="message">{{ message }}</span>
       </div>
 
       <!-- 文字サイズ変更 -->
-      <label
-        v-if="fontSizeBar"
-        class="fontSizeSlider"
-      >文字サイズ{{fontSize}}px<input type="range" min="10" max="18" v-model="fontSize" @mousedown.stop>
+      <label v-if="fontSizeBar" class="fontSizeSlider">
+        文字サイズ{{ fontSize }}px
+        <input
+          type="range"
+          min="10"
+          max="18"
+          v-model="fontSize"
+          @mousedown.stop
+        />
       </label>
+
+      <!-- 閉じるボタン -->
+      <span v-if="!isBanClose" @contextmenu.prevent>
+        <i
+          class="icon-cross window-close"
+          @click.left.prevent="closeWindow"
+        ></i>
+      </span>
     </div>
 
     <!-- サイズ変更つまみ -->
@@ -46,19 +58,33 @@
       v-if="!isFix"
       @mousedown.left.prevent="event => resize(event, 'corner-left-top', true)"
       @mouseup.left.prevent="event => resize(event, 'corner-left-top', false)"
-      @touchstart.prevent="event => resize(event, 'corner-left-top', true, true)"
+      @touchstart.prevent="
+        event => resize(event, 'corner-left-top', true, true)
+      "
       @touchend.prevent="event => resize(event, 'corner-left-top', false, true)"
-      @touchcancel.prevent="event => resize(event, 'corner-left-top', false, true)"
+      @touchcancel.prevent="
+        event => resize(event, 'corner-left-top', false, true)
+      "
       @contextmenu.prevent
     ></div>
     <div
       class="corner-left-bottom"
       v-if="!isFix"
-      @mousedown.left.prevent="event => resize(event, 'corner-left-bottom', true)"
-      @mouseup.left.prevent="event => resize(event, 'corner-left-bottom', false)"
-      @touchstart.prevent="event => resize(event, 'corner-left-bottom', true, true)"
-      @touchend.prevent="event => resize(event, 'corner-left-bottom', false, true)"
-      @touchcancel.prevent="event => resize(event, 'corner-left-bottom', false, true)"
+      @mousedown.left.prevent="
+        event => resize(event, 'corner-left-bottom', true)
+      "
+      @mouseup.left.prevent="
+        event => resize(event, 'corner-left-bottom', false)
+      "
+      @touchstart.prevent="
+        event => resize(event, 'corner-left-bottom', true, true)
+      "
+      @touchend.prevent="
+        event => resize(event, 'corner-left-bottom', false, true)
+      "
+      @touchcancel.prevent="
+        event => resize(event, 'corner-left-bottom', false, true)
+      "
       @contextmenu.prevent
     ></div>
     <div
@@ -66,18 +92,35 @@
       v-if="!isFix"
       @mousedown.left.prevent="event => resize(event, 'corner-right-top', true)"
       @mouseup.left.prevent="event => resize(event, 'corner-right-top', false)"
-      @touchstart.prevent="event => resize(event, 'corner-right-top', true, true)"
-      @touchend.prevent="event => resize(event, 'corner-right-top', false, true)"
-      @touchcancel.prevent="event => resize(event, 'corner-right-top', false, true)"
+      @touchstart.prevent="
+        event => resize(event, 'corner-right-top', true, true)
+      "
+      @touchend.prevent="
+        event => resize(event, 'corner-right-top', false, true)
+      "
+      @touchcancel.prevent="
+        event => resize(event, 'corner-right-top', false, true)
+      "
       @contextmenu.prevent
     ></div>
     <div
-      class="corner-right-bottom" v-if="!isFix"
-      @mousedown.left.prevent="event => resize(event, 'corner-right-bottom', true)"
-      @mouseup.left.prevent="event => resize(event, 'corner-right-bottom', false)"
-      @touchstart.prevent="event => resize(event, 'corner-right-bottom', true, true)"
-      @touchend.prevent="event => resize(event, 'corner-right-bottom', false, true)"
-      @touchcancel.prevent="event => resize(event, 'corner-right-bottom', false, true)"
+      class="corner-right-bottom"
+      v-if="!isFix"
+      @mousedown.left.prevent="
+        event => resize(event, 'corner-right-bottom', true)
+      "
+      @mouseup.left.prevent="
+        event => resize(event, 'corner-right-bottom', false)
+      "
+      @touchstart.prevent="
+        event => resize(event, 'corner-right-bottom', true, true)
+      "
+      @touchend.prevent="
+        event => resize(event, 'corner-right-bottom', false, true)
+      "
+      @touchcancel.prevent="
+        event => resize(event, 'corner-right-bottom', false, true)
+      "
       @contextmenu.prevent
     ></div>
     <div
@@ -121,14 +164,6 @@
       @contextmenu.prevent
     ></div>
 
-    <!-- 閉じるボタン -->
-    <span v-if="!isBanClose" @contextmenu.prevent>
-      <i
-        class="icon-cross window-close"
-        @click.left.prevent="closeWindow"
-      ></i>
-    </span>
-
     <!-- 立ち絵 -->
     <stand-image-component
       class="standImage"
@@ -137,7 +172,7 @@
       :standImage="standImage.standImage"
       :drawDiff="true"
       @click="clickStandImage(standImage.standImage, index)"
-      :style="standImageStyle(standImage.standImage)"
+      :style="standImageStyle(standImage.standImage, index)"
       @contextmenu.prevent
     />
   </div>
@@ -431,8 +466,6 @@ export default class WindowFrame extends Vue {
           /* Nothing */
         }
       }
-      /*
-        */
       if (!iFrameElm.onmousemove) {
         iFrameElm.onmousemove = mouseMoveListener;
       }
@@ -452,11 +485,12 @@ export default class WindowFrame extends Vue {
     this.standImageList.splice(index, 1);
   }
 
-  standImageStyle(standImage: any): any {
+  standImageStyle(standImage: any, index: number): any {
     const locate = standImage.locate;
     const mpx: number = (192 * (locate - 1)) / 12;
     return {
-      left: `calc((100% - 192px) * ${locate - 1} / 11)`
+      left: `calc((100% - 192px) * ${locate - 1} / 11)`,
+      zIndex: index + 2
     };
   }
 
@@ -612,7 +646,6 @@ export default class WindowFrame extends Vue {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 @import "./common.scss";
 
@@ -643,7 +676,7 @@ export default class WindowFrame extends Vue {
 }
 
 .window-title {
-  @include flex-box(row, center, center);
+  @include flex-box(row, space-between, center);
   position: absolute;
   top: 0;
   left: 0;
@@ -655,6 +688,8 @@ export default class WindowFrame extends Vue {
   font-size: 12px;
   font-weight: bold;
   white-space: nowrap;
+  padding: 0 0.5em;
+  box-sizing: border-box;
 
   &.fix {
     background: linear-gradient(
@@ -662,10 +697,8 @@ export default class WindowFrame extends Vue {
       rgba(142, 226, 186, 0.8)
     );
   }
-  > div {
-    position: absolute;
-    left: 5px;
 
+  > div {
     > span:not(:first-child) {
       margin-left: 0.5em;
       padding: 0 0.5em;
@@ -675,24 +708,69 @@ export default class WindowFrame extends Vue {
       background-color: white;
     }
   }
-}
 
-.window-close {
-  position: absolute;
-  top: 3px;
-  right: 8px;
-  padding: 3px;
-  font-size: 8px;
-  border: 2px solid rgba(0, 0, 0, 0.5);
-  color: rgba(0, 0, 0, 0.5);
-  transform-origin: right;
-  transform: scale(0.8);
-  cursor: pointer;
-  white-space: nowrap;
+  .fontSizeSlider {
+    @include flex-box(row, center, center);
+    font-size: 10px;
+    color: #444;
 
-  &:hover {
-    border-color: black;
-    color: black;
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: linear-gradient(
+        to bottom,
+        rgb(160, 166, 162) 0%,
+        rgb(201, 199, 200) 100%
+      );
+      height: 0.4em;
+      width: 100%;
+      border-radius: 0.3em;
+      border: 1px solid rgb(167, 167, 167);
+      border-top: 1px solid rgb(105, 110, 106);
+      box-sizing: border-box;
+
+      &:focus,
+      &:active {
+        outline: none;
+      }
+
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+        position: relative;
+        width: 1em;
+        height: 1em;
+        display: block;
+        background-image: linear-gradient(
+          to bottom,
+          rgb(242, 248, 246) 0%,
+          rgb(242, 248, 246) 50%,
+          rgb(230, 240, 239) 51%,
+          rgb(230, 240, 239) 100%
+        );
+        border-radius: 50%;
+        -webkit-border-radius: 50%;
+        border: 1px solid rgb(167, 167, 167);
+      }
+    }
+  }
+
+  .window-close {
+    display: block;
+    padding: 3px;
+    font-size: 8px;
+    border: 2px solid rgba(0, 0, 0, 0.5);
+    color: rgba(0, 0, 0, 0.5);
+    transform-origin: right;
+    transform: scale(0.8) translateX(0);
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+      border-color: black;
+      color: black;
+    }
   }
 }
 
@@ -777,51 +855,6 @@ export default class WindowFrame extends Vue {
   cursor: se-resize;
 }
 
-.fontSizeSlider {
-  @include flex-box(row, center, center);
-  font-size: 10px;
-
-  input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    background-image: linear-gradient(
-      to bottom,
-      rgb(160, 166, 162) 0%,
-      rgb(201, 199, 200) 100%
-    );
-    height: 0.4em;
-    width: 100%;
-    border-radius: 0.3em;
-    border: 1px solid rgb(167, 167, 167);
-    border-top: 1px solid rgb(105, 110, 106);
-    box-sizing: border-box;
-
-    &:focus,
-    &:active {
-      outline: none;
-    }
-
-    &::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      cursor: pointer;
-      position: relative;
-      width: 1em;
-      height: 1em;
-      display: block;
-      background-image: linear-gradient(
-        to bottom,
-        rgb(242, 248, 246) 0%,
-        rgb(242, 248, 246) 50%,
-        rgb(230, 240, 239) 51%,
-        rgb(230, 240, 239) 100%
-      );
-      border-radius: 50%;
-      -webkit-border-radius: 50%;
-      border: 1px solid rgb(167, 167, 167);
-    }
-  }
-}
 .standImage {
   width: 192px;
   height: 256px;

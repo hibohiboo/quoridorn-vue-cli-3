@@ -2,6 +2,7 @@
   <ctrl-select
     v-model="localValue"
     :optionInfoList="optionInfoList"
+    :maxWidth="7"
   />
 </template>
 

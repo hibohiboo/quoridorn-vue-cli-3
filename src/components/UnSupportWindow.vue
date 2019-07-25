@@ -34,7 +34,6 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .contents {
   position: relative;
@@ -42,9 +41,6 @@ export default {
 
   > * {
     display: block;
-    position: absolute;
-    left: 0;
-    right: 0;
     margin: 0 auto;
   }
 }

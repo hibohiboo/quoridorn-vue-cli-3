@@ -3,10 +3,33 @@
     <legend>プレイヤー情報</legend>
     <dl>
       <template v-for="player in playerList">
-        <dt :key="'dt-' + player.key" :class="{ isNotExits: !getMembers(player.key).length, isMe: player.key === playerKey }">{{player.name}}{{player.type ? `（${player.type}）` : ""}}</dt>
-        <dd :key="'dd-' + player.key" :class="{ isNotExits: !getMembers(player.key).length, isMe: player.key === playerKey }">
-          <label class="returnUrlArea" v-if="!isWait">復帰用URL：<input class="returnUrl" type="text" readonly="readonly" :value="createUrl(player)"/>
-            <ctrl-button class="copy" @click="event => doCopy(event)">コピー</ctrl-button>
+        <dt
+          :key="'dt-' + player.key"
+          :class="{
+            isNotExits: !getMembers(player.key).length,
+            isMe: player.key === playerKey
+          }"
+        >
+          {{ player.name }}{{ player.type ? `（${player.type}）` : "" }}
+        </dt>
+        <dd
+          :key="'dd-' + player.key"
+          :class="{
+            isNotExits: !getMembers(player.key).length,
+            isMe: player.key === playerKey
+          }"
+        >
+          <label class="returnUrlArea" v-if="!isWait">
+            復帰用URL：
+            <input
+              class="returnUrl"
+              type="text"
+              readonly="readonly"
+              :value="createUrl(player)"
+            />
+            <ctrl-button class="copy" @click="doCopy">
+              コピー
+            </ctrl-button>
           </label>
         </dd>
       </template>
@@ -38,7 +61,8 @@ export default class RoomInfo extends Vue {
    * @param event
    */
   doCopy(event: any): void {
-    const text = event.target.previousElementSibling.value;
+    // const text = event.target.previousElementSibling.value;
+    const text = event.target.parentNode.previousElementSibling.value;
     if (!execCopy(text)) {
       alert("テキストをコピーできませんでした。");
     }
@@ -47,8 +71,7 @@ export default class RoomInfo extends Vue {
 }
 </script>
 
-<style scoped src="./login.css">
-</style>
+<style scoped src="./login.css"></style>
 
 <style scoped lang="scss">
 fieldset.root,

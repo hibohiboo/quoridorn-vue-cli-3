@@ -11,90 +11,131 @@
       <!----------------------------------------------------------------------------------
        ! ロゴ
        !--------------------------------------------------------------------------------->
-      <div id="logo-container">
-        <div>
-          <logo/>
-          <div>Ver.{{version}}</div>
-        </div>
-      </div>
+      <logo />
 
       <!----------------------------------------------------------------------------------
        ! タブ
        !--------------------------------------------------------------------------------->
       <div class="tab_wrap">
-        <input id="welcomeWindow-tab1" type="radio" name="tab_btn" value="1" v-model="tabNum">
-        <input id="welcomeWindow-tab2" type="radio" name="tab_btn" value="2" v-model="tabNum">
-        <input id="welcomeWindow-tab3" type="radio" name="tab_btn" value="3" v-model="tabNum">
-        <input id="welcomeWindow-tab4" type="radio" name="tab_btn" value="4" v-model="tabNum">
+        <input
+          id="welcomeWindow-tab1"
+          type="radio"
+          name="tab_btn"
+          value="1"
+          v-model="tabNum"
+        />
+        <input
+          id="welcomeWindow-tab2"
+          type="radio"
+          name="tab_btn"
+          value="2"
+          v-model="tabNum"
+        />
+        <input
+          id="welcomeWindow-tab3"
+          type="radio"
+          name="tab_btn"
+          value="3"
+          v-model="tabNum"
+        />
+        <input
+          id="welcomeWindow-tab4"
+          type="radio"
+          name="tab_btn"
+          value="4"
+          v-model="tabNum"
+        />
 
         <div class="tab_area" @contextmenu.prevent>
-          <label class="tab1_label" for="welcomeWindow-tab1">ログイン</label>
-          <label class="tab2_label" for="welcomeWindow-tab2">仕様一覧</label>
-          <label class="tab3_label" for="welcomeWindow-tab3">出典元情報</label>
-          <label class="tab4_label" for="welcomeWindow-tab4">開発支援</label>
+          <label class="tab1_label" for="welcomeWindow-tab1">
+            ログイン
+          </label>
+          <label class="tab2_label" for="welcomeWindow-tab2">
+            仕様一覧
+          </label>
+          <label class="tab3_label" for="welcomeWindow-tab3">
+            出典元情報
+          </label>
+          <label class="tab4_label" for="welcomeWindow-tab4">
+            開発支援
+          </label>
         </div>
         <div class="panel_area">
           <!--------------------------------
            ! タブ１ - ログイン
            !------------------------------->
           <div id="panel1" class="tab_panel">
-            <login/>
+            <login />
           </div>
           <!--------------------------------
            ! タブ２ - 仕様一覧
            !------------------------------->
           <div id="panel2" class="tab_panel">
             <div class="spec-header">
-              <ctrl-button class="open" @click="specAll(true)">全て開く</ctrl-button>
-              <ctrl-button class="close" @click="specAll(false)">全て閉じる</ctrl-button>
+              <ctrl-button class="open" @click="specAll(true)">
+                全て開く
+              </ctrl-button>
+              <ctrl-button class="close" @click="specAll(false)">
+                全て閉じる
+              </ctrl-button>
             </div>
             <div class="menu">
-              <environment/><!-- 動作環境 -->
-              <menu-bar/><!-- メインメニュー -->
-              <save/><!-- セーブ機能 -->
-              <load/><!-- ロード機能 -->
-              <chat-window/><!-- チャット画面 -->
-              <dice-window/><!-- ダイス画面 -->
-              <player-box-window/><!-- プレイヤーボックス画面 -->
-              <initiative-window/><!-- イニシアティブ画面 -->
-              <counter-remocon-window-spec/><!-- カウンターリモコン画面 -->
-              <change-font-size-window/><!-- フォントサイズ調整画面 -->
-              <reset-all-window/><!-- ウィンドウ配置初期化機能 -->
-              <add-character-window/><!-- キャラクター追加画面 -->
-              <add-range-window/><!-- 範囲追加画面 -->
-              <add-chit-window/><!-- チット追加画面 -->
-              <graveyard-window/><!-- 墓場画面 -->
-              <waiting-room-window/><!-- キャラクター待合室画面 -->
-              <edit-map-window/><!-- マップ変更画面 -->
-              <edit-floor-tile-mode/><!-- フロアタイル変更モード -->
-              <add-map-mask-window/><!-- マップマスク追加機能 -->
-              <create-easy-map-window/><!-- 簡易マップ作成機能 -->
-              <save-map-window/><!-- マップ状態保存画面 -->
-              <load-map-window/><!-- マップ切り替え画面 -->
-              <file-uploader-window-spec/><!-- ファイルアップローダー画面 -->
-              <edit-image-tag-window/><!-- (画像)タグ編集画面 -->
-              <delete-image-window/><!-- 画像削除画面 -->
-              <welcome-window-spec/><!-- ようこそ画面 -->
-              <version-window/><!-- バージョン画面 -->
-              <manual-window/><!-- マニュアル画面 -->
-              <official-site-link/><!-- オフィシャルサイトへ -->
-              <room-info-window/><!-- プレイルーム情報表示画面 -->
-              <add-public-memo-window/><!-- 共有メモ追加画面 -->
-              <logout/><!-- ログアウト -->
-              <setting-b-g-m-window-spec/><!-- BGM設定画面 -->
-              <add-edit-b-g-m-window-spec/><!-- BGM追加・編集画面 -->
-              <add-dice-symbol-window-spec/><!-- ダイスシンボル追加画面 -->
+              <environment /><!-- 動作環境 -->
+              <menu-bar /><!-- メインメニュー -->
+              <save /><!-- セーブ機能 -->
+              <load /><!-- ロード機能 -->
+              <chat-window /><!-- チャット画面 -->
+              <dice-window /><!-- ダイス画面 -->
+              <player-box-window /><!-- プレイヤーボックス画面 -->
+              <initiative-window /><!-- イニシアティブ画面 -->
+              <counter-remocon-window-spec /><!-- カウンターリモコン画面 -->
+              <change-font-size-window /><!-- フォントサイズ調整画面 -->
+              <reset-all-window /><!-- ウィンドウ配置初期化機能 -->
+              <add-character-window /><!-- キャラクター追加画面 -->
+              <add-range-window /><!-- 範囲追加画面 -->
+              <add-chit-window /><!-- チット追加画面 -->
+              <graveyard-window /><!-- 墓場画面 -->
+              <waiting-room-window /><!-- キャラクター待合室画面 -->
+              <edit-map-window /><!-- マップ変更画面 -->
+              <edit-floor-tile-mode /><!-- フロアタイル変更モード -->
+              <add-map-mask-window /><!-- マップマスク追加機能 -->
+              <create-easy-map-window /><!-- 簡易マップ作成機能 -->
+              <save-map-window /><!-- マップ状態保存画面 -->
+              <load-map-window /><!-- マップ切り替え画面 -->
+              <file-uploader-window-spec /><!-- ファイルアップローダー画面 -->
+              <edit-image-tag-window /><!-- (画像)タグ編集画面 -->
+              <delete-image-window /><!-- 画像削除画面 -->
+              <welcome-window-spec /><!-- ようこそ画面 -->
+              <version-window /><!-- バージョン画面 -->
+              <manual-window /><!-- マニュアル画面 -->
+              <official-site-link /><!-- オフィシャルサイトへ -->
+              <room-info-window /><!-- プレイルーム情報表示画面 -->
+              <add-public-memo-window /><!-- 共有メモ追加画面 -->
+              <logout /><!-- ログアウト -->
+              <setting-b-g-m-window-spec /><!-- BGM設定画面 -->
+              <add-edit-b-g-m-window-spec /><!-- BGM追加・編集画面 -->
+              <add-dice-symbol-window-spec /><!-- ダイスシンボル追加画面 -->
+              <stand-image-setting-window-spec /><!-- 立ち絵設定画面 -->
+              <custom-dice-bot-table-window-spec /><!-- ダイスボット用表管理 -->
+              <chat-palette-setting-window-spec /><!-- チャットパレット画面 -->
             </div>
-            <span class="toTop" @click="scrollTo()"><span class="rotate90">＜</span><span>TOP</span></span>
+            <span class="toTop" @click="scrollTo()">
+              <span class="rotate90">＜</span>
+              <span>TOP</span>
+            </span>
           </div>
           <!--------------------------------
            ! タブ３ - 出典元情報
            !------------------------------->
-          <div id="panel3" class="tab_panel"><Source/></div>
+          <div id="panel3" class="tab_panel">
+            <Source />
+          </div>
           <!--------------------------------
            ! タブ４ - 開発支援
            !------------------------------->
-          <div id="panel4" class="tab_panel"><dev-support/></div>
+          <div id="panel4" class="tab_panel">
+            <dev-support />
+          </div>
         </div>
       </div>
       <!-- tab_wrap -->
@@ -108,37 +149,37 @@ import WindowMixin from "../WindowMixin.vue";
 import CtrlButton from "@/components/parts/CtrlButton.vue";
 
 import Login from "./login/Login.vue";
-import Environment from "./spec/Environment.vue";
-import MenuBar from "./spec/MenuBar.vue";
-import Save from "./spec/Save.vue";
-import Load from "./spec/Load.vue";
+import Environment from "./spec/EnvironmentSpec.vue";
+import MenuBar from "./spec/MenuBarSpec.vue";
+import Save from "./spec/SaveSpec.vue";
+import Load from "./spec/LoadSpec.vue";
 import ChatWindow from "./spec/ChatWindowSpec.vue";
-import DiceWindow from "./spec/DiceWindow.vue";
-import PlayerBoxWindow from "./spec/PlayerBoxWindow.vue";
-import ChangeFontSizeWindow from "./spec/ChangeFontSizeWindow.vue";
-import ResetAllWindow from "./spec/ResetAllWindow.vue";
-import AddCharacterWindow from "./spec/AddCharacterWindow.vue";
-import AddRangeWindow from "./spec/AddRangeWindow.vue";
+import DiceWindow from "./spec/DiceWindowSpec.vue";
+import PlayerBoxWindow from "./spec/PlayerBoxWindowSpec.vue";
+import ChangeFontSizeWindow from "./spec/ChangeFontSizeWindowSpec.vue";
+import ResetAllWindow from "./spec/ResetAllWindowSpec.vue";
+import AddCharacterWindow from "./spec/AddCharacterWindowSpec.vue";
+import AddRangeWindow from "./spec/AddRangeWindowSpec.vue";
 import AddChitWindow from "./spec/AddChitWindowSpec.vue";
-import GraveyardWindow from "./spec/GraveyardWindow.vue";
-import WaitingRoomWindow from "./spec/WaitingRoomWindow.vue";
+import GraveyardWindow from "./spec/GraveyardWindowSpec.vue";
+import WaitingRoomWindow from "./spec/WaitingRoomWindowSpec.vue";
 import EditMapWindow from "./spec/EditMapWindowSpec.vue";
-import EditFloorTileMode from "./spec/EditFloorTileMode.vue";
-import AddMapMaskWindow from "./spec/AddMapMaskWindow.vue";
-import CreateEasyMapWindow from "./spec/CreateEasyMapWindow.vue";
-import SaveMapWindow from "./spec/SaveMapWindow.vue";
+import EditFloorTileMode from "./spec/EditFloorTileModeSpec.vue";
+import AddMapMaskWindow from "./spec/AddMapMaskWindowSpec.vue";
+import CreateEasyMapWindow from "./spec/CreateEasyMapWindowSpec.vue";
+import SaveMapWindow from "./spec/SaveMapWindowSpec.vue";
 import LoadMapWindow from "./spec/LoadMapWindow.vue";
 import FileUploaderWindowSpec from "./spec/FileUploaderWindowSpec.vue";
-import EditImageTagWindow from "./spec/EditImageTagWindow.vue";
-import DeleteImageWindow from "./spec/DeleteImageWindow.vue";
+import EditImageTagWindow from "./spec/EditImageTagWindowSpec.vue";
+import DeleteImageWindow from "./spec/DeleteImageWindowSpec.vue";
 import WelcomeWindowSpec from "./spec/WelcomeWindowSpec.vue";
-import VersionWindow from "./spec/VersionWindow.vue";
-import ManualWindow from "./spec/ManualWindow.vue";
-import OfficialSiteLink from "./spec/OfficialSiteLink.vue";
-import RoomInfoWindow from "./spec/RoomInfoWindow.vue";
+import VersionWindow from "./spec/VersionWindowSpec.vue";
+import ManualWindow from "./spec/ManualWindowSpec.vue";
+import OfficialSiteLink from "./spec/OfficialSiteLinkSpec.vue";
+import RoomInfoWindow from "./spec/RoomInfoWindowSpec.vue";
 import AddPublicMemoWindow from "./spec/PublicMemoSpec.vue";
-import Logout from "./spec/Logout.vue";
-import InitiativeWindow from "./spec/InitiativeWindow.vue";
+import Logout from "./spec/LogoutSpec.vue";
+import InitiativeWindow from "./spec/InitiativeWindowSpec.vue";
 
 import Logo from "../simple/Logo.vue";
 import Source from "./source/Source.vue";
@@ -150,9 +191,13 @@ import CounterRemoconWindowSpec from "@/components/welcome/spec/CounterRemoconWi
 import SettingBGMWindowSpec from "@/components/welcome/spec/SettingBGMWindowSpec.vue";
 import AddEditBGMWindowSpec from "@/components/welcome/spec/AddEditBGMWindowSpec.vue";
 import AddDiceSymbolWindowSpec from "@/components/welcome/spec/AddDiceSymbolWindowSpec.vue";
+import CustomDiceBotTableWindowSpec from "@/components/welcome/spec/CustomDiceBotTableWindowSpec.vue";
+import StandImageSettingWindowSpec from "@/components/welcome/spec/StandImageSettingWindowSpec.vue";
+import ChatPaletteSettingWindowSpec from "@/components/welcome/spec/ChatPaletteSettingWindowSpec.vue";
 
 @Component({
   components: {
+    ChatPaletteSettingWindowSpec,
     CtrlButton,
     AddDiceSymbolWindowSpec,
     CounterRemoconWindowSpec,
@@ -193,7 +238,9 @@ import AddDiceSymbolWindowSpec from "@/components/welcome/spec/AddDiceSymbolWind
     Source,
     DevSupport,
     SettingBGMWindowSpec,
-    AddEditBGMWindowSpec
+    AddEditBGMWindowSpec,
+    CustomDiceBotTableWindowSpec,
+    StandImageSettingWindowSpec
   }
 })
 export default class WelcomeWindow extends Mixins<WindowMixin>(WindowMixin) {
@@ -223,7 +270,6 @@ export default class WelcomeWindow extends Mixins<WindowMixin>(WindowMixin) {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .contents {
   /*position: absolute;*/
@@ -234,23 +280,6 @@ export default class WelcomeWindow extends Mixins<WindowMixin>(WindowMixin) {
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
-}
-
-#logo-container {
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 0.8em;
-  font-size: 16px;
-  pointer-events: none;
-
-  div {
-    display: inline-flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-end;
-  }
 }
 
 .tab_wrap {
@@ -303,6 +332,7 @@ input[type="radio"] {
   display: none;
   flex: 1;
   width: 100%;
+  white-space: normal;
 
   p {
     font-size: 14px;

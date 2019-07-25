@@ -8,21 +8,37 @@
     <div class="contents" @contextmenu.prevent>
       <div v-if="!imageList">画像読込中...</div>
       <fieldset v-for="imageObj in imageList" :key="imageObj.key">
-        <legend>{{imageObj.name}}</legend>
+        <legend>{{ imageObj.name }}</legend>
         <div>
           <img class="image" v-img="imageObj.image" draggable="false" />
-          <ctrl-button class="passwordButton" @click="passwordButtonOnClick">隠し画像パスワード設定</ctrl-button>
-          <label class="passwordLabel">隠し画像パスワード：{{imageObj.password !== '' ? 'あり' : 'なし'}}</label>
+          <ctrl-button class="passwordButton" @click="passwordButtonOnClick">
+            隠し画像パスワード設定
+          </ctrl-button>
+          <label class="passwordLabel">
+            隠し画像パスワード：{{ imageObj.password !== "" ? "あり" : "なし" }}
+          </label>
           <span class="tagLabel">付与するタグ(半角・全角スペースで区切り)</span>
-          <input class="tagInput" type="text" @change="changeTag(imageObj.key)" v-model="imageObj.currentTag" />
-          <ctrl-select class="tagSelect" @input="selectTag(imageObj.key)" v-model="imageObj.selectTag">
-            <option v-for="tagObj in imageTagList.slice(1)" :key="tagObj.key" :value="tagObj.name">{{tagObj.name}}</option>
-          </ctrl-select>
+          <input
+            class="tagInput"
+            type="text"
+            @change="changeTag(imageObj.key)"
+            v-model="imageObj.currentTag"
+          />
+          <ctrl-select
+            class="tagSelect"
+            @input="selectTag(imageObj.key)"
+            v-model="imageObj.selectTag"
+            :optionInfoList="tagSelectOptionInfoList"
+          />
         </div>
       </fieldset>
       <div class="operateArea">
-        <ctrl-button @click="commit" :disabled="!imageList">決定</ctrl-button>
-        <ctrl-button @click="cancel" :disabled="!imageList">キャンセル</ctrl-button>
+        <ctrl-button @click="commit" :disabled="!imageList">
+          決定
+        </ctrl-button>
+        <ctrl-button @click="cancel" :disabled="!imageList">
+          キャンセル
+        </ctrl-button>
       </div>
     </div>
   </window-frame>
@@ -113,6 +129,18 @@ export default class DropImageWindow extends Mixins<WindowMixin>(WindowMixin) {
     this.imageTagChange({ key: key, imageList: this.imageList });
   }
 
+  private get tagSelectOptionInfoList(): any[] {
+    return this.imageTagList
+      .concat()
+      .slice(1)
+      .map((imageTag: any) => ({
+        key: imageTag.key,
+        value: imageTag.name,
+        text: imageTag.name,
+        disabled: false
+      }));
+  }
+
   @Watch("dropImageList")
   private onChangeDropImageList(dropImageList: any[]): void {
     this.imageList = dropImageList.map(imgObj => ({
@@ -129,7 +157,6 @@ export default class DropImageWindow extends Mixins<WindowMixin>(WindowMixin) {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .contents {
   position: absolute;

@@ -184,6 +184,7 @@ export default {
         dispatch("addChatLog", {
           name: rootGetters.systemLog.name,
           text: `${player.name} が退室しました。`,
+          from: rootGetters.systemLog.from,
           color: rootGetters.systemLog.color,
           tab: rootGetters.systemLog.tab,
           owner: rootGetters.systemLog.owner
@@ -317,7 +318,17 @@ export default {
       }
 
       // 受け取ったpublic情報でローカルを更新する
-      rootState.public = value;
+      const volatileList = value.chat.tab.list.map(
+        (tabObj: any, index: number) => ({
+          key: tabObj.key,
+          isActive: index === 0,
+          isHover: false,
+          unRead: 0,
+          order: 0
+        })
+      );
+      Vue.set(rootState.private.chat, "tab", volatileList);
+      Vue.set(rootState, "public", value);
 
       const showInputWindow = () => {
         // 情報を入力してもらう
@@ -1109,6 +1120,7 @@ export default {
       dispatch("addChatLog", {
         name: rootGetters.systemLog.name,
         text: `${playerName} が入室しました。`,
+        from: rootGetters.systemLog.from,
         color: rootGetters.systemLog.color,
         tab: rootGetters.systemLog.tab,
         owner: rootGetters.systemLog.owner
