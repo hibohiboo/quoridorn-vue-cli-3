@@ -337,7 +337,7 @@ export default class Character extends PieceMixin {
       // ハイライトを表示
       this.isViewHighlight = true;
       // 時間差でハイライトを非表示
-      this.highlightTimer = setTimeout(() => {
+      this.highlightTimer = window.setTimeout(() => {
         this.isViewHighlight = false;
         this.highlightTimer = null;
       }, 300);

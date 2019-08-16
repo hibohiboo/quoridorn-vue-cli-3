@@ -1,4 +1,4 @@
-FROM node:11.14.0
+FROM node:12.8.0
 
 # コンテナ上の作業ディレクトリ作成
 WORKDIR /app
@@ -22,6 +22,11 @@ RUN yarn add vue-slider-component
 RUN yarn add vuedraggable
 RUN yarn add vuex
 RUN yarn add vuex-class
+RUN yarn add crypto-js
+RUN yarn add file-saver
+RUN yarn add mathjs
+RUN yarn add mustache
+
 
 RUN yarn add --dev typescript
 RUN yarn add --dev compression-webpack-plugin
@@ -44,3 +49,12 @@ RUN yarn add --dev sass-loader
 RUN yarn add --dev vue-template-compiler
 # RUN yarn add --dev @typescript-eslint/parser
 RUN yarn add --dev typescript-eslint-parser
+RUN yarn add --dev @types/mathjs
+RUN yarn add --dev compression-webpack-plugin
+RUN yarn add --dev json-loader
+RUN yarn add --dev yaml-loader
+RUN yarn add --dev @types/crypto-js
+RUN yarn add --dev @types/mustache
+RUN yarn add --dev eslint-plugin-prettier
+
+

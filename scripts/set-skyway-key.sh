@@ -2,7 +2,7 @@
 
 # 環境変数 QUORIDORN_SKYWAY_KEY を使用してSkyWayのAPIキーを設定するスクリプト
 
-CONNECT_YAML="dist/static/conf/connect.yaml"
+CONNECT_YAML="/app/dist/static/conf/connect.yaml"
 
 if [ ! -f $CONNECT_YAML ]
 then
@@ -16,5 +16,5 @@ then
   exit 1
 fi
 
-sed -E -i '.old' "s/^(skywayKey:).+/\1 \"$QUORIDORN_SKYWAY_KEY\"/" $CONNECT_YAML
-echo "Set SkyWay API key to \"$QUORIDORN_SKYWAY_KEY\""
+sed -E -i'.old' "s/^(skywayKey:).+/\1 \"$QUORIDORN_SKYWAY_KEY\"/" $CONNECT_YAML
+echo "$CONNECT_YAML : Set SkyWay API key to \"$QUORIDORN_SKYWAY_KEY\""

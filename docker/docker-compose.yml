@@ -8,26 +8,15 @@ services:
       - ../babel.config.js:/app/babel.config.js
       - ./custom/vue.config.js:/app/vue.config.js
       - ../src:/app/src
+      - ../scripts:/app/scripts
       - ../public:/app/public
       - ../dist:/app/dest
     ports:
       - 8080:8080
-    # env_file: ../.env
+    env_file: .env
     environment:
       - NODE_ENV=develop
       - BASE_URL=192.168.50.10
       - VUE_APP_BASE_URL=quoridorn
     command: [yarn, run, serve]
 
-  # デプロイツール
-  quoridorn_firebase:
-    build: ./firebase
-    env_file: ./firebase/.env
-    volumes:
-      - ../app/public:/app/public
-      - /app/functions/node_modules
-      - ../app/.firebaserc:/app/.firebaserc
-      - ../app/firebase.json:/app/firebase.json
-    ports:
-      - 5000:5000
-      - 9005:9005

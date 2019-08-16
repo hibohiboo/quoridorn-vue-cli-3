@@ -6,6 +6,8 @@ parent_dir=$bin_dir/..
 docker_dir=$parent_dir/docker
 container_name=${1:-quoridorn}
 
+rm -rf  $parent_dir/dist
+
 # $container_nameの有無をgrepで調べる
 docker ps | grep $container_name
 
@@ -19,6 +21,10 @@ else
   cd $docker_dir && docker-compose run $container_name yarn run build
 fi
 
-# distフォルダに出力されたビルド内容をquoridornの名前に変更してapp/publicの下に移動
+vendor_dir=$(cd $parent_dir/.. && pwd)
+root_dir=$(cd $vendor_dir/.. && pwd)
+public_dir=$(cd $root_dir/app/public && pwd)
 
-mv -T $parent_dir/dist/dist $parent_dir/app/public/quoridorn
+rm -rf $public_dir/quoridorn
+cp -r  $parent_dir/dist/dist $public_dir/quoridorn
+
