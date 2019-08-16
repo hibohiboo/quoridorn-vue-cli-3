@@ -6,6 +6,7 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
 
 module.exports = {
   publicPath: process.env.VUE_APP_BASE_URL,
+  productionSourceMap: process.env.NODE_ENV === 'development', // productionにはソースマップを出さない。
   pages: {
     main: {
       entry: "src/main.ts", // エントリーポイントとなるjs
@@ -49,13 +50,14 @@ module.exports = {
   },
   configureWebpack: {
     plugins: [
-      new CompressionWebpackPlugin({
-        filename: "[path].gz[query]",
-        algorithm: "gzip",
-        test: new RegExp("\\.(" + productionGzipExtensions.join("|") + ")$"),
-        threshold: 1024,
-        minRatio: 0.8
-      })
+      // firebaseはデフォルトでgzip圧縮するので、gzファイルは別途不要
+      // new CompressionWebpackPlugin({
+      //   filename: "[path].gz[query]",
+      //   algorithm: "gzip",
+      //   test: new RegExp("\\.(" + productionGzipExtensions.join("|") + ")$"),
+      //   threshold: 1024,
+      //   minRatio: 0.8
+      // })
       // buildの後にanalyzerが動いてctrl + Cで終わらなければならなくなるのでコメントアウト
       // new BundleAnalyzerPlugin()
     ]

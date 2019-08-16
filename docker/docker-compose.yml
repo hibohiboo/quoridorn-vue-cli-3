@@ -15,7 +15,7 @@ services:
     #   - 8080:8080
     env_file: .env
     environment:
-      - NODE_ENV=develop
+      - NODE_ENV=production
       - BASE_URL=192.168.50.10
       - VUE_APP_BASE_URL=quoridorn
     # command: [yarn, run, serve]

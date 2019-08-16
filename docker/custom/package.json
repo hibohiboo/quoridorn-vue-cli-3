@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "npm run build-chat-log && vue-cli-service serve --open",
-    "build": "vue-cli-service build && npm run set-skyway-key && mv /app/dist /app/dest/",
+    "build": "vue-cli-service build --mode production && npm run set-skyway-key && mv /app/dist /app/dest/",
     "create-zip": "scripts/create-zip.sh",
     "build-chat-log": "scripts/build-chat-log.sh",
     "lint": "vue-cli-service lint",
@@ -74,9 +74,7 @@
     }
   },
   "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not ie <= 8"
+    "last 1 chrome version"
   ],
   "gitHooks": {
     "pre-commit": "lint-staged"
