@@ -11,6 +11,26 @@ services:
       - ../scripts:/app/scripts
       - ../public:/app/public
       - ../dist:/app/dest
+    # ports:
+    #   - 8080:8080
+    env_file: .env
+    environment:
+      - NODE_ENV=develop
+      - BASE_URL=192.168.50.10
+      - VUE_APP_BASE_URL=quoridorn
+    # command: [yarn, run, serve]
+
+  quoridorn_stable:
+    build: ./stable
+    volumes:
+      - ./custom/package.json:/app/package.json
+      - ../tsconfig.json:/app/tsconfig.json
+      - ../babel.config.js:/app/babel.config.js
+      - ./custom/vue.config.js:/app/vue.config.js
+      - ../src:/app/src
+      - ../scripts:/app/scripts
+      - ../public:/app/public
+      - ../dist:/app/dest
     ports:
       - 8080:8080
     env_file: .env
@@ -19,4 +39,3 @@ services:
       - BASE_URL=192.168.50.10
       - VUE_APP_BASE_URL=quoridorn
     command: [yarn, run, serve]
-
