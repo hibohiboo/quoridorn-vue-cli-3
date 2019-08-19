@@ -56,5 +56,4 @@ RUN yarn add --dev yaml-loader
 RUN yarn add --dev @types/crypto-js
 RUN yarn add --dev @types/mustache
 RUN yarn add --dev eslint-plugin-prettier
-
-
+RUN yarn add firebase

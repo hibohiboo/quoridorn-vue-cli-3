@@ -3,6 +3,9 @@ import {
   arrangeInitiativeWidthList
 } from "@/components/common/Utility";
 
+import { lobbyRef, serverTimestamp } from './firebase/firebase';
+
+
 export default {
   actions: {
     sendChatLog: (
@@ -252,6 +255,19 @@ export default {
       payload.owner = payload.owner || rootGetters.playerKey;
       if (!payload.name) {
         payload.name = rootGetters.getViewName(rootGetters.chatActorKey);
+      }
+
+      if (rootGetters.roomName === 'lobby' && payload.from !== 'chattool') {
+        lobbyRef.add({
+          chattool: "quoridorn"
+          , original: payload
+          , common: {
+            name: payload.name
+            , text: payload.text
+            , createdAt: Date.now()
+          }
+          , createdAt: serverTimestamp
+        });
       }
       dispatch("sendNoticeOperation", {
         value: payload,

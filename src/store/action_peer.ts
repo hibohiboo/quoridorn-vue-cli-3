@@ -2,6 +2,7 @@ import Vue from "vue";
 import Peer from "skyway-js";
 import { qLog } from "@/components/common/Utility";
 import moment from "moment";
+import { lobbyRef } from './firebase/firebase';
 
 export default {
   actions: {
@@ -36,7 +37,7 @@ export default {
           } catch (err) {
             alert(
               "connect.yamlの設定を見直してください。\n現在の値：" +
-                rootGetters.skywayKey
+              rootGetters.skywayKey
             );
             reject.call(null);
             return;
@@ -356,6 +357,7 @@ export default {
           return;
         }
       }
+
 
       // 入室通知
       resolve({
@@ -1158,6 +1160,45 @@ export default {
 
       // 入室状態
       commit("updateIsJoined", true);
+      if (rootGetters.roomName !== 'lobby') {
+        return;
+      }
+      let isFirst = true;
+
+      lobbyRef.orderBy('createdAt', 'desc').limit(5).onSnapshot(qs => {
+        qs.docChanges().forEach(change => {
+
+          if ('added' !== `${change.type}`
+            || rootGetters.roomName !== 'lobby') {
+            return;
+          }
+          const data = change.doc.data();
+
+          // quoridornのメッセージは初回以外読み込まない。
+          if (data.chattool === 'quoridorn' && !isFirst) {
+            return;
+          }
+
+          const contextIds: string[] = rootGetters.members.map((p: { peerId: String }) => p.peerId);
+
+          const maxId = contextIds.reduce((a, b) => a > b ? a : b);
+
+          // 参加者の中で、最大のIDを持つ人以外は更新しない。
+          if (maxId !== rootGetters.peerId(false)) {
+            return;
+          }
+
+          dispatch("addChatLog", {
+            name: data.common.name,
+            text: data.common.text,
+            tab: rootGetters.systemLog.tab,
+            target: "groupTargetTab-0",
+            from: 'chattool',
+            owner: rootGetters.systemLog.from
+          });
+        });
+        isFirst = false;
+      });
     }
   }
 };

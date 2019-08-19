@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "npm run build-chat-log && vue-cli-service serve --open",
+    "serve": "vue-cli-service serve --port 8080",
     "build": "vue-cli-service build --mode production && npm run set-skyway-key && mv /app/dist /app/dest/",
     "create-zip": "scripts/create-zip.sh",
     "build-chat-log": "scripts/build-chat-log.sh",
@@ -34,7 +34,8 @@
     "vuedraggable": "^2.23.0",
     "vuex": "^3.1.1",
     "vuex-class": "^0.3.2",
-    "yaml-loader": "^0.5.0"
+    "yaml-loader": "^0.5.0",
+    "firebase": "6.3.5"
   },
   "devDependencies": {
     "@types/crypto-js": "^3.1.43",
@@ -51,7 +52,8 @@
     "lint-staged": "^7.2.2",
     "node-sass": "^4.12.0",
     "sass-loader": "^7.0.1",
-    "vue-template-compiler": "^2.6.10"
+    "vue-template-compiler": "^2.6.10",
+    "eslint-plugin-prettier": "3.1.0"
   },
   "eslintConfig": {
     "root": true,
